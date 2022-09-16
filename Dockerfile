@@ -20,6 +20,8 @@ USER node
 WORKDIR /home/node
 
 COPY --chown=node:node * /home/node/
+RUN ls resources/
+RUN ls resources/css
 
 RUN npm install && \
     npm run build && \
