@@ -81,8 +81,7 @@ COPY --from=prod-composer /var/www/html/vendor /var/www/html/vendor
 
 #- Copy in our front-end assets
 RUN mkdir -p /var/www/html/public/js /var/www/html/public/css
-COPY --from=frontend /home/node/public/js /var/www/html/public/js
-COPY --from=frontend /home/node/public/css /var/www/html/public/css
+COPY --from=frontend /home/node/build/js /var/www/html/build
 
 #- Copy in our code
 COPY . /var/www/html
