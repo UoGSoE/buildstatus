@@ -19,7 +19,7 @@ RUN ln -s /home/node/public /public
 USER node
 WORKDIR /home/node
 
-COPY --chown=node:node * /home/node/
+COPY --chown=node:node . /home/node/
 RUN ls
 RUN ls resources/
 RUN ls resources/css
