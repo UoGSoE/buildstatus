@@ -15,4 +15,9 @@ class Machine extends Model
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
     ];
+
+    public function markAsComplete()
+    {
+        $this->update(['status' => 'Complete']);
+    }
 }

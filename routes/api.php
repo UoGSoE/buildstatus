@@ -17,13 +17,27 @@ use Illuminate\Support\Facades\Route;
 Route::post('/machine', function (Request $request) {
     $request->validate([
         'name' => 'required',
-        'started_at' => 'required|date_format:Y-m-d H:i:s',
-        'finished_at' => 'nullable|date_format:Y-m-d H:i:s',
         'status' => 'required|string',
+        'started_at' => 'nullable|date_format:Y-m-d H:i:s',
+        'finished_at' => 'nullable|date_format:Y-m-d H:i:s',
         'ip_address' => 'nullable|ip',
     ]);
+
     $machine = \App\Models\Machine::firstOrCreate(['name' => $request->name]);
-    $machine->update($request->only(['started_at', 'finished_at', 'status', 'ip_address']));
+
+    $machine->status = $request->status;
+
+    if ($request->started_at) {
+        $machine->started_at = \Carbon\Carbon::parse($request->started_at);
+    }
+    if ($request->finished_at) {
+        $machine->finished_at = \Carbon\Carbon::parse($request->finished_at);
+    }
+    if ($request->ip_address) {
+        $machine->ip_address = $request->ip_address;
+    }
+
+    $machine->save();
 
     return ['data' => $machine];
 });
