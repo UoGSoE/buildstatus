@@ -19,13 +19,7 @@ RUN ln -s /home/node/public /public
 USER node
 WORKDIR /home/node
 
-RUN mkdir -p /home/node/public/css /home/node/public/js /home/node/resources
-
-COPY --chown=node:node package*.json .babelrc* /home/node/
-COPY --chown=node:node resources/js* /home/node/resources/js
-COPY --chown=node:node resources/sass* /home/node/resources/sass
-COPY --chown=node:node resources/scss* /home/node/resources/scss
-COPY --chown=node:node resources/css* /home/node/resources/css
+COPY --chown=node:node * /home/node/
 
 RUN npm install && \
     npm run build && \
