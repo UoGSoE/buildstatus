@@ -3,17 +3,23 @@
 namespace App\Http\Livewire;
 
 use App\Models\Machine;
+use App\Models\Tag;
 use Livewire\Component;
 
 class MachineList extends Component
 {
     public $password = '';
     public $search = '';
+    public $tags = [];
+    public $showTagList = false;
+
+    protected $queryString = ['tags'];
 
     public function render()
     {
         return view('livewire.machine-list', [
             'machines' => $this->getMachines(),
+            'availableTags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -25,6 +31,13 @@ class MachineList extends Component
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('ip_address', 'like', "%{$search}%")
                     ->orWhere('status', 'like', "%{$search}%");
+            })
+            ->when(count($this->tags) > 0, function ($query) {
+                foreach ($this->tags as $tagId) {
+                    $query->whereHas('tags', function ($query) use ($tagId) {
+                        $query->where('tag_id', $tagId);
+                    });
+                }
             })
             ->get();
     }
@@ -52,7 +65,7 @@ class MachineList extends Component
             return;
         }
 
-        Machine::truncate();
+        $this->getMachines()->each->delete();
 
         $this->password = '';
     }

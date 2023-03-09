@@ -14,6 +14,18 @@
                     </div>
                 </div>
             </div>
+            <div class="level-item">
+                <div class="field">
+                    <div class="control">
+                        <button wire:click.prevent="$toggle('showTagList')" @class([
+                            "button",
+                            "is-primary" => $showTagList,
+                        ])>
+                            Tags...
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="level-right">
             <div class="level-item">
@@ -22,12 +34,34 @@
                         <input class="input" type="password" wire:model.defer="password" placeholder="Secret password...">
                     </div>
                     <div class="control">
-                        <button class="button" wire:click.prevent="truncateMachines">Wipe Everything</button>
+                        <button class="button" wire:click.prevent="truncateMachines">Wipe Current List</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @if ($showTagList)
+        <div class="box">
+                @foreach ($availableTags->chunk(3) as $chunkedTags)
+                    <div class="columns">
+                        @foreach ($chunkedTags as $tag)
+                            <div class="column">
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="checkbox">
+                                            <input type="checkbox" wire:model="tags" value="{{ $tag->id }}">
+                                            {{ $tag->name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endforeach
+        </div>
+    @endif
+
     <table class="table is-fullwidth is-striped is-hoverable" wire:poll.30s>
         <thead>
             <tr>

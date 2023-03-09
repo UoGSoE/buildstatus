@@ -19,7 +19,7 @@ class MachineFactory extends Factory
         return [
             'name' => $this->faker->word(),
             'ip_address' => $this->faker->ipv4(),
-            'started_at' => $this->faker->dateTime(),
+            'started_at' => now()->subHour(rand(1, 10))->subMinute(rand(1, 50)),
             'finished_at' => null,
             'status' => 'Building',
         ];

@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tag;
 use App\Models\Machine;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class TestDataSeeder extends Seeder
 {
@@ -16,5 +17,10 @@ class TestDataSeeder extends Seeder
     public function run()
     {
         Machine::factory(300)->create();
+        collect(['engineering', 'compsci', 'maths', 'laptop', 'labmachine', 'macos', 'windows'])->each(fn ($tagName) => Tag::create(['name' => $tagName]));
+        $tags = Tag::all();
+        Machine::all()->each(function ($machine) use ($tags) {
+            $machine->tags()->attach($tags->random(3));
+        });
     }
 }

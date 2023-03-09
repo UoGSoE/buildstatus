@@ -15,6 +15,7 @@ class MachineController extends Controller
             'started_at' => 'nullable|date_format:Y-m-d H:i:s',
             'finished_at' => 'nullable|date_format:Y-m-d H:i:s',
             'ip_address' => 'nullable|ip',
+            'tags' => 'nullable|array',
         ]);
 
         $machine = \App\Models\Machine::firstOrCreate(['name' => $request->name]);
@@ -33,6 +34,12 @@ class MachineController extends Controller
 
         $machine->save();
 
+        if ($request->filled('tags')) {
+            $machine->tags()->sync([]);
+            $request->collect('tags')->each(function ($tag) use ($machine) {
+                $machine->tags()->firstOrCreate(['name' => trim($tag)]);
+            });
+        }
         return ['data' => $machine];
     }
 }

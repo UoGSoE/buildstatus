@@ -1,0 +1,11 @@
+.flash {
+    opacity: 1;
+    animation: fade 2s linear;
+}
+
+
+@keyframes fade {
+  0%,100% { background-color: hsl(0, 0%, 100%) }
+  50% { background-color: hsl(0, 0%, 100%) }
+}
+

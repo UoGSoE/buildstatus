@@ -16,6 +16,11 @@ class Machine extends Model
         'finished_at' => 'datetime',
     ];
 
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
     public function markAsComplete()
     {
         $this->update(['status' => 'Complete']);
