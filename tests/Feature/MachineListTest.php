@@ -10,7 +10,7 @@ class MachineListTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function we_see_the_machine_list_livewire_component()
+    public function we_see_the_machine_list_livewire_component(): void
     {
         $response = $this->get(route('home'));
 
@@ -19,25 +19,25 @@ class MachineListTest extends TestCase
     }
 
     /** @test */
-    public function the_component_displays_the_list_of_all_machines_by_default()
+    public function the_component_displays_the_list_of_all_machines_by_default(): void
     {
         $this->fail('TODO');
     }
 
     /** @test */
-    public function we_can_search_for_particular_machines()
+    public function we_can_search_for_particular_machines(): void
     {
         $this->fail('TODO');
     }
 
     /** @test */
-    public function we_can_use_tags_to_filter_the_list_of_machines()
+    public function we_can_use_tags_to_filter_the_list_of_machines(): void
     {
         $this->fail('TODO');
     }
 
     /** @test */
-    public function we_can_delete_all_machines_matching_the_current_search_and_tags()
+    public function we_can_delete_all_machines_matching_the_current_search_and_tags(): void
     {
         $this->fail('TODO');
     }

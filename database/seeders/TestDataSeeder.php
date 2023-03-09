@@ -13,7 +13,7 @@ class TestDataSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         Machine::factory(300)->create();
         collect(['engineering', 'compsci', 'maths', 'laptop', 'labmachine', 'macos', 'windows'])->each(fn ($tagName) => Tag::create(['name' => $tagName]));

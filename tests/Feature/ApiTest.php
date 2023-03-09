@@ -11,7 +11,7 @@ class ApiTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function we_can_send_the_details_of_a_new_machine_via_an_api_call()
+    public function we_can_send_the_details_of_a_new_machine_via_an_api_call(): void
     {
         $this->assertEquals(0, Machine::count());
 
@@ -37,7 +37,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_the_details_of_an_existing_machine_via_an_api_call()
+    public function we_can_update_the_details_of_an_existing_machine_via_an_api_call(): void
     {
         $machine1 = Machine::factory()->create([
             'name' => 'Test Machine 1',
