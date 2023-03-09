@@ -9,8 +9,11 @@ use Livewire\Component;
 class MachineList extends Component
 {
     public $password = '';
+
     public $search = '';
+
     public $tags = [];
+
     public $showTagList = false;
 
     protected $queryString = ['tags'];
@@ -26,6 +29,7 @@ class MachineList extends Component
     public function getMachines()
     {
         $search = trim($this->search);
+
         return Machine::latest('updated_at')
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")

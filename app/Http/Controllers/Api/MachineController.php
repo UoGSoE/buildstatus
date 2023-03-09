@@ -40,6 +40,7 @@ class MachineController extends Controller
                 $machine->tags()->firstOrCreate(['name' => trim($tag)]);
             });
         }
+
         return ['data' => $machine];
     }
 }

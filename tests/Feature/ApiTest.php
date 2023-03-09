@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Machine;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ApiTest extends TestCase
 {
@@ -79,5 +78,4 @@ class ApiTest extends TestCase
             $this->assertEquals(['tag1', 'tag3', 'tag4'], $machine->tags->pluck('name')->toArray());
         });
     }
-
 }
