@@ -17,7 +17,7 @@ class MachineFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word(),
+            'name' => $this->faker->word() . $this->faker->randomNumber(3),
             'ip_address' => $this->faker->ipv4(),
             'started_at' => now()->subHour(rand(1, 10))->subMinute(rand(1, 50)),
             'finished_at' => null,

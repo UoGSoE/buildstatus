@@ -13,4 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [\App\Http\Controllers\HomeController::class, 'show'])->name('home');
+Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'show'])->name('login');
+Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'store'])->name('login.store');
+Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'destroy'])->name('logout');
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/', [\App\Http\Controllers\HomeController::class, 'show'])->name('home');
+    Route::get('/access', \App\Http\Livewire\AccessManager::class)->name('admin.access');
+    Route::get('/tags', \App\Http\Livewire\TagManager::class)->name('admin.tags');
+});

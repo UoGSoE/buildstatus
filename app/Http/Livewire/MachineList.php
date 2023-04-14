@@ -20,7 +20,7 @@ class MachineList extends Component
 
     public function render()
     {
-        return view('livewire.machine-list', [
+        return view('livewire.machine-list2', [
             'machines' => $this->getMachines(),
             'availableTags' => Tag::orderBy('name')->get(),
         ]);

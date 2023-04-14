@@ -13,6 +13,8 @@ class ApiTest extends TestCase
     /** @test */
     public function we_can_send_the_details_of_a_new_machine_via_an_api_call(): void
     {
+        $this->fail('TODO: change controller to use a queued job rather than doing things inline');
+
         $this->assertEquals(0, Machine::count());
 
         $response = $this->postJson(route('api.machine.store'), [

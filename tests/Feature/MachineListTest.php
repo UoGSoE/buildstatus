@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Machine;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -15,7 +16,8 @@ class MachineListTest extends TestCase
     /** @test */
     public function we_see_the_machine_list_livewire_component(): void
     {
-        $response = $this->get(route('home'));
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get(route('home'));
 
         $response->assertOk();
         $response->assertSeeLivewire('machine-list');

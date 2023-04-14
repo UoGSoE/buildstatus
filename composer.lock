@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f6d2e83f08d554a0ed1dcb5b648a6d4",
+    "content-hash": "c3876b019305a2b8b444c6233fb23a13",
     "packages": [
         {
             "name": "brick/math",
@@ -2353,6 +2353,57 @@
                 }
             ],
             "time": "2023-02-08T01:06:31+00:00"
+        },
+        {
+            "name": "ohffs/simple-laravel-ldap",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ohnotnow/simple-ldap.git",
+                "reference": "9bbe11991f8ad491a25e3b3cef873bd273f6df4c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ohnotnow/simple-ldap/zipball/9bbe11991f8ad491a25e3b3cef873bd273f6df4c",
+                "reference": "9bbe11991f8ad491a25e3b3cef873bd273f6df4c",
+                "shasum": ""
+            },
+            "require-dev": {
+                "orchestra/testbench": "~7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ohffs\\Ldap\\LdapServiceProvider",
+                        "Ohffs\\Ldap\\LdapConnectionProvider"
+                    ],
+                    "aliases": {
+                        "Ldap": "Ohffs\\Ldap\\LdapFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ohffs\\Ldap\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "billy",
+                    "email": "william.allan@glasgow.ac.uk"
+                }
+            ],
+            "description": "Basic LDAP auser auth/lookup",
+            "support": {
+                "issues": "https://github.com/ohnotnow/simple-ldap/issues",
+                "source": "https://github.com/ohnotnow/simple-ldap/tree/2.0.1"
+            },
+            "time": "2022-06-10T14:45:20+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -5341,6 +5392,56 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/2.2.6"
             },
             "time": "2023-01-03T09:29:04+00:00"
+        },
+        {
+            "name": "uogsoe/ldap-laravel",
+            "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/UoGSoE/LaravelLdap.git",
+                "reference": "11d94df992bc8781cd5cc8d40e3cc60b90cab459"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/UoGSoE/LaravelLdap/zipball/11d94df992bc8781cd5cc8d40e3cc60b90cab459",
+                "reference": "11d94df992bc8781cd5cc8d40e3cc60b90cab459",
+                "shasum": ""
+            },
+            "require": {
+                "ohffs/simple-laravel-ldap": "~2.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "UoGSoE\\LaravelLdap\\LaravelLdapServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UoGSoE\\LaravelLdap\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Billy",
+                    "email": "william.allan@glasgow.ac.uk"
+                }
+            ],
+            "description": "Adds a custom auth provider for our LDAP service",
+            "support": {
+                "issues": "https://github.com/UoGSoE/LaravelLdap/issues",
+                "source": "https://github.com/UoGSoE/LaravelLdap/tree/4.0.0"
+            },
+            "time": "2022-06-10T12:25:55+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
