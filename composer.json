@@ -11,7 +11,7 @@
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.44",
-        "laravel/horizon": "^5.12",
+        "laravel/horizon": "^5.22",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "livewire/livewire": "^2.11",
@@ -19,7 +19,7 @@
         "uogsoe/ldap-laravel": "^4.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.8",
+        "barryvdh/laravel-debugbar": "^3.10",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
