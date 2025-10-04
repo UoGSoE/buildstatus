@@ -9,6 +9,22 @@
         @livewireStyles
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
+        <style>
+            .pulse-animation {
+                animation: pulse 0.5s ease-in-out;
+            }
+
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                50% {
+                    transform: scale(1.05);
+                    opacity: 0.8;
+                }
+            }
+        </style>
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         @auth
