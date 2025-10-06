@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Lab;
 use App\Models\Machine;
+use App\Http\Controllers\Controller;
 use App\Jobs\MachineUpdate;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class MachineUpdateController extends Controller
 {

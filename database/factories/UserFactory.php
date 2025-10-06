@@ -26,4 +26,13 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
         ];
     }
+
+    public function staff(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_staff' => true,
+            ];
+        });
+    }
 }
