@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('surname');
             $table->string('forenames');
             $table->boolean('is_staff')->default(false);
+            $table->boolean('is_admin')->default(false);
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
