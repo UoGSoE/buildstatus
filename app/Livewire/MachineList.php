@@ -58,6 +58,9 @@ class MachineList extends Component
     {
         $this->machineDetails = Machine::findOrFail($machineId);
 
+        // load 10 latest logs
+        $this->machineDetails->logs = $this->machineDetails->logs()->latest()->limit(10)->get();
+
         Flux::modal('machine-details')->show();
     }
 }

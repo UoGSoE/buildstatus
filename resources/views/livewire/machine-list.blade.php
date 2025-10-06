@@ -54,12 +54,12 @@
             @if ($machineDetails?->logs->count() > 0)
                 <flux:separator class="my-2" />
                 <div class="space-y-2">
-                    <flux:heading size="sm">Recent logs ({{ $machineDetails->logs->count() }})</flux:heading>
+                    <flux:heading size="sm">Recent logs</flux:heading>
                     <div class="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                        @foreach ($machineDetails->logs as $log)
-                            <div class="flex flex-col gap-1 text-sm">
+                        @foreach ($machineDetails->logs->take(10) as $log)
+                            <div class="flex flex-col sm:flex-row gap-1 text-sm">
                                 <flux:text variant="strong" class="text-xs">{{ $log->created_at->format('d/m/Y H:i:s') }}</flux:text>
-                                <flux:text class="text-xs">{{ $log->message }}</flux:text>
+                                <flux:text class="text-xs">{{ substr($log->message, 0, 50) . '...' }}</flux:text>
                             </div>
                         @endforeach
                     </div>
