@@ -19,6 +19,9 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->foreignId('lab_id')->nullable()->constrained('labs')->nullOnDelete();
             $table->timestamps();
+
+            $table->index('name');
+            $table->index('status');
         });
     }
 

@@ -51,6 +51,20 @@
                 <flux:button :href="route('machine.details', $machineDetails?->id ?? 1)">Full details</flux:button>
                 <flux:button class="cursor-pointer" x-on:click="$flux.modals().close()">Close</flux:button>
             </div>
+            @if ($machineDetails?->logs->count() > 0)
+                <flux:separator class="my-2" />
+                <div class="space-y-2">
+                    <flux:heading size="sm">Recent logs ({{ $machineDetails->logs->count() }})</flux:heading>
+                    <div class="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                        @foreach ($machineDetails->logs as $log)
+                            <div class="flex flex-col gap-1 text-sm">
+                                <flux:text variant="strong" class="text-xs">{{ $log->created_at->format('d/m/Y H:i:s') }}</flux:text>
+                                <flux:text class="text-xs">{{ $log->message }}</flux:text>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </flux:modal>
 </div>

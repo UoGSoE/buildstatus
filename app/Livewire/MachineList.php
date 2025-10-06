@@ -41,7 +41,7 @@ class MachineList extends Component
     public function getMachines()
     {
         $filter = strtolower(trim($this->filter));
-        return Machine::with(['lab', 'logs'])
+        return Machine::with(['lab', 'logs' => fn ($query) => $query->latest()->limit(10)])
             ->when(strlen($filter) > 1, function ($query) use ($filter) {
                 $query->where(fn ($query) => $query->where('name', 'like', '%' . $filter . '%')
                                                 ->orWhere('ip_address', 'like', '%' . $filter . '%')

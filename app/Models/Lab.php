@@ -10,7 +10,12 @@ class Lab extends Model
     /** @use HasFactory<\Database\Factories\LabFactory> */
     use HasFactory;
 
-    public function machines()
+    protected $fillable = [
+        'name',
+        'notes',
+    ];
+
+    public function machines(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Machine::class);
     }

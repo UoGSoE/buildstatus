@@ -18,12 +18,12 @@ class Machine extends Model
         'lab_id',
     ];
 
-    public function lab()
+    public function lab(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Lab::class);
     }
 
-    public function logs()
+    public function logs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Log::class);
     }

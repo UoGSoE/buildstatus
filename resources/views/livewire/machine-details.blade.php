@@ -29,14 +29,17 @@
         </flux:card>
         <flux:separator class="my-2" />
         <flux:heading size="lg">Logs</flux:heading>
-        @if ($machine?->logs->count() > 0)
+        @if ($logs->count() > 0)
             <div class="flex flex-col gap-2">
-                @foreach ($machine?->logs as $log)
+                @foreach ($logs as $log)
                     <div class="flex flex-col md:flex-row gap-2">
                         <flux:text variant="strong">{{ $log->created_at->format('d/m/Y H:i:s') }}</flux:text>
                         <flux:text>{{ $log->message }}</flux:text>
                     </div>
                 @endforeach
+            </div>
+            <div class="mt-4">
+                <flux:pagination :paginator="$logs" />
             </div>
         @else
             <flux:text>No logs found</flux:text>

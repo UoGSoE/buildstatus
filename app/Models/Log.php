@@ -10,7 +10,13 @@ class Log extends Model
     /** @use HasFactory<\Database\Factories\LogFactory> */
     use HasFactory;
 
-    public function machine()
+    protected $fillable = [
+        'message',
+        'format',
+        'machine_id',
+    ];
+
+    public function machine(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Machine::class);
     }

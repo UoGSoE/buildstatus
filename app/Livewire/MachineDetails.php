@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Machine;
+use Livewire\WithPagination;
 
 class MachineDetails extends Component
 {
+    use WithPagination;
+
     public $machine;
 
     public function mount(Machine $machine)
@@ -16,6 +19,8 @@ class MachineDetails extends Component
 
     public function render()
     {
-        return view('livewire.machine-details');
+        return view('livewire.machine-details', [
+            'logs' => $this->machine->logs()->latest()->paginate(50),
+        ]);
     }
 }

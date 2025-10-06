@@ -18,43 +18,26 @@ class MachineUpdate implements ShouldQueue
     public function handle(): void
     {
         $lab = null;
-        if ($this->data['lab_name']) {
+        if ($this->data['lab_name'] ?? null) {
             $lab = Lab::firstOrCreate([
                 'name' => $this->data['lab_name'],
             ]);
         }
 
-        $machineFields = [
+        $machineFields = array_filter([
             'name' => $this->data['name'],
-        ];
-
-        if (array_key_exists('ip_address', $this->data) && $this->data['ip_address']) {
-            $machineFields['ip_address'] = $this->data['ip_address'];
-        }
-
-        if (array_key_exists('status', $this->data) && $this->data['status']) {
-            $machineFields['status'] = $this->data['status'];
-        }
-
-        if (array_key_exists('notes', $this->data) && $this->data['notes']) {
-            $machineFields['notes'] = $this->data['notes'];
-        }
-
-        if ($lab) {
-            $machineFields['lab_id'] = $lab->id;
-        }
+            'ip_address' => $this->data['ip_address'] ?? null,
+            'status' => $this->data['status'] ?? null,
+            'notes' => $this->data['notes'] ?? null,
+            'lab_id' => $lab?->id,
+        ], fn ($value) => $value !== null);
 
         $machine = Machine::updateOrCreate([
             'name' => $this->data['name'],
         ], $machineFields);
 
-        $logMessage = [
-            'message' => json_encode($machineFields),
-            'format' => 'json',
-        ];
-
         $machine->logs()->create([
-            'message' => $logMessage,
+            'message' => json_encode($machineFields),
             'format' => 'json',
         ]);
     }
