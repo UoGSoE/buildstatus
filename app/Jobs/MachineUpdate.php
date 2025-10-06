@@ -28,15 +28,15 @@ class MachineUpdate implements ShouldQueue
             'name' => $this->data['name'],
         ];
 
-        if ($this->data['ip_address']) {
+        if (array_key_exists('ip_address', $this->data) && $this->data['ip_address']) {
             $machineFields['ip_address'] = $this->data['ip_address'];
         }
 
-        if ($this->data['status']) {
+        if (array_key_exists('status', $this->data) && $this->data['status']) {
             $machineFields['status'] = $this->data['status'];
         }
 
-        if ($this->data['notes']) {
+        if (array_key_exists('notes', $this->data) && $this->data['notes']) {
             $machineFields['notes'] = $this->data['notes'];
         }
 

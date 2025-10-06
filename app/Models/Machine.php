@@ -10,6 +10,14 @@ class Machine extends Model
     /** @use HasFactory<\Database\Factories\MachineFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'ip_address',
+        'status',
+        'notes',
+        'lab_id',
+    ];
+
     public function lab()
     {
         return $this->belongsTo(Lab::class);

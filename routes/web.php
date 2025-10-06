@@ -4,4 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/sso-auth.php';
 
-Route::get('/', \App\Livewire\HomePage::class)->name('home');
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/', \App\Livewire\HomePage::class)->name('home');
+    Route::get('/machine/{machine}', \App\Livewire\MachineDetails::class)->name('machine.details');
+});
