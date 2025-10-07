@@ -80,7 +80,9 @@ test('uses existing lab if it already exists', function () {
     expect(Machine::first()->lab_id)->toBe($existingLab->id);
 });
 
-test('creates machine without lab when lab_name is not provided', function () {
+test('handles updates without lab_name by preserving existing lab_id', function () {
+    // API validation prevents NEW machines without lab, but Job must handle
+    // updates where lab_name is omitted (preserving existing lab)
     $job = new MachineUpdate([
         'name' => 'standalone-machine',
         'status' => 'idle',

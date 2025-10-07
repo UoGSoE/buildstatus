@@ -1,6 +1,8 @@
 <?php
 
 use App\Jobs\MachineUpdate;
+use App\Models\Lab;
+use App\Models\Machine;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
@@ -108,7 +110,7 @@ test('dispatches machine update job with valid data', function () {
     });
 });
 
-test('accepts minimal data with only required name field', function () {
+test('requires lab_name when creating new machine', function () {
     Queue::fake();
     Sanctum::actingAs(User::factory()->create(), ['*']);
 
@@ -116,13 +118,32 @@ test('accepts minimal data with only required name field', function () {
         'name' => 'minimal-machine',
     ]);
 
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors('lab_name');
+
+    Queue::assertNotPushed(MachineUpdate::class);
+});
+
+test('allows updating existing machine without lab_name', function () {
+    Queue::fake();
+    Sanctum::actingAs(User::factory()->create(), ['*']);
+
+    // Create existing machine first
+    Machine::factory()->create([
+        'name' => 'existing-machine',
+        'lab_id' => Lab::factory()->create()->id,
+    ]);
+
+    $response = $this->postJson('/api/machine', [
+        'name' => 'existing-machine',
+        'status' => 'building',
+    ]);
+
     $response->assertOk();
 
     Queue::assertPushed(MachineUpdate::class, function ($job) {
-        return $job->data['name'] === 'minimal-machine'
-            && !isset($job->data['ip_address'])
-            && !isset($job->data['status'])
-            && !isset($job->data['notes'])
-            && !isset($job->data['lab_name']);
+        return $job->data['name'] === 'existing-machine'
+            && $job->data['status'] === 'building'
+            && ! isset($job->data['lab_name']);
     });
 });

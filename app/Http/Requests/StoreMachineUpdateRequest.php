@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Machine;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreMachineUpdateRequest extends FormRequest
 {
@@ -28,5 +30,18 @@ class StoreMachineUpdateRequest extends FormRequest
             'notes' => 'nullable|string',
             'lab_name' => 'nullable|string|max:255',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            // Require lab_name for new machines
+            if (! $this->input('lab_name') && ! Machine::where('name', $this->input('name'))->exists()) {
+                $validator->errors()->add('lab_name', 'The lab name field is required when creating a new machine.');
+            }
+        });
     }
 }
