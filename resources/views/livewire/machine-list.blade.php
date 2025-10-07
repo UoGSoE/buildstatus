@@ -1,20 +1,21 @@
 <div>
     <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-            <flux:input wire:model.live="filter" clearable placeholder="Filter" class="w-64" />
             <flux:select variant="listbox" searchable placeholder="Choose labs..." wire:model.live="labId">
                 <flux:select.option value="">All labs</flux:select.option>
                 @foreach ($labs as $lab)
                     <flux:select.option value="{{ $lab->id }}">{{ $lab->name }}</flux:select.option>
                 @endforeach
             </flux:select>
+            <flux:input wire:model.live="filter" clearable placeholder="Filter" class="w-64" />
+        </div>
+        <div class="flex items-center gap-4">
             @if(auth()->user()->isAdmin())
-                <flux:button variant="danger" icon="trash" wire:click="confirmBulkDelete">
-                    Clear Filtered Machines
+                <flux:button variant="danger" icon="trash" wire:click="confirmBulkDelete" title="Clear Filtered Machines">
                 </flux:button>
             @endif
+            <flux:switch wire:model.live="autoRefresh" label="Auto refresh?" />
         </div>
-        <flux:switch wire:model.live="autoRefresh" label="Auto refresh?" />
     </div>
     <flux:separator class="my-2" />
     <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"

@@ -39,14 +39,12 @@
                                     icon="pencil"
                                     wire:click="edit({{ $lab->id }})"
                                 >
-                                    Edit
                                 </flux:button>
                                 <flux:button
                                     size="sm"
                                     icon="trash"
                                     wire:click="delete({{ $lab->id }})"
                                 >
-                                    Delete
                                 </flux:button>
                             </div>
                         @endif

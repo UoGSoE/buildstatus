@@ -29,6 +29,9 @@
     --color-accent: var(--color-sky-800);
     --color-accent-content: var(--color-sky-800);
     --color-accent-foreground: var(--color-white);
+    --color-danger: var(--color-red-700);
+    --color-danger-content: var(--color-red-700);
+    --color-danger-foreground: var(--color-white);
 }
 
 @layer theme {
@@ -36,5 +39,8 @@
         --color-accent: var(--color-sky-800);
         --color-accent-content: var(--color-sky-600);
         --color-accent-foreground: var(--color-white);
+        --color-danger: var(--color-red-200);
+        --color-danger-content: var(--color-red-200);
+        --color-danger-foreground: var(--color-white);
     }
 }

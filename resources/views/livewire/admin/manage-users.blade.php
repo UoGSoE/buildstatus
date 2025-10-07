@@ -55,7 +55,6 @@
                                     icon="pencil"
                                     wire:click="edit({{ $user->id }})"
                                 >
-                                    Edit
                                 </flux:button>
                                 <flux:button
                                     size="sm"
@@ -63,7 +62,6 @@
                                     wire:click="delete({{ $user->id }})"
                                     wire:confirm="Are you sure you want to delete this user?"
                                 >
-                                    Delete
                                 </flux:button>
                             </div>
                         @endif
