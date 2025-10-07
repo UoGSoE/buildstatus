@@ -33,7 +33,7 @@ These instructions assume familiarity with Laravel tooling and that you have Doc
 ### 1. Clone & Configure
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/UoGSoE/buildstatus
 cd buildstatus
 cp .env.example .env
 ```
