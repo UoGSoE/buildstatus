@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-            <flux:input wire:model.live="filter" placeholder="Filter" />
+            <flux:input wire:model.live="filter" clearable placeholder="Filter" />
             <flux:select variant="listbox" searchable placeholder="Choose labs..." wire:model.live="labId">
                 <flux:select.option value="">All labs</flux:select.option>
                 @foreach ($labs as $lab)
@@ -78,7 +78,7 @@
             <flux:heading size="lg">Delete Multiple Machines</flux:heading>
 
             <flux:callout variant="danger" icon="x-circle" heading="Warning: This action cannot be undone!">
-                You are about to permanently delete <strong>{{ $bulkDeleteCount }}</strong> machine(s) that match your current filter.
+                You are about to permanently delete <strong>{{ $bulkDeleteCount }}</strong> {{ Str::plural('machine', $bulkDeleteCount) }} that match your current filter.
                 <br><br>
                 This will remove all machine records and their associated logs from the system.
                 <br><br>
@@ -97,9 +97,9 @@
                 <flux:button
                     variant="danger"
                     wire:click="bulkDelete"
-                    wire:confirm="Are you absolutely sure you want to delete {{ $bulkDeleteCount }} machine(s)? This cannot be undone."
+                    wire:confirm="Are you absolutely sure you want to delete {{ $bulkDeleteCount }} {{ Str::plural('machine', $bulkDeleteCount) }}? This cannot be undone."
                 >
-                    Delete {{ $bulkDeleteCount }} Machine(s)
+                    Delete {{ $bulkDeleteCount }} {{ Str::plural('machine', $bulkDeleteCount) }}
                 </flux:button>
             </div>
         </div>

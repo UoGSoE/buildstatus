@@ -168,7 +168,7 @@ class ManageLabs extends Component
 
         $this->reset(['labToDelete', 'reassignLabId']);
         Flux::modal('delete-lab-confirmation')->close();
-        Flux::toast("Lab '{$labName}' and {$machineCount} machine(s) deleted successfully");
+        Flux::toast("Lab '{$labName}' and {$machineCount} ".\Illuminate\Support\Str::plural('machine', $machineCount).' deleted successfully');
     }
 
     public function updatedFilter(): void

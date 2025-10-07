@@ -98,7 +98,7 @@
 
             @if($labToDelete)
                 <flux:callout variant="warning">
-                    This lab has <strong>{{ $labToDelete->machines->count() }}</strong> machine(s) associated with it.
+                    This lab has <strong>{{ $labToDelete->machines->count() }}</strong> {{ Str::plural('machine', $labToDelete->machines->count()) }} associated with it.
                     Choose how you want to handle them:
                 </flux:callout>
 
@@ -133,12 +133,12 @@
 
                     <div class="space-y-4">
                         <flux:heading size="sm">Option 2: Delete Everything</flux:heading>
-                        <flux:text>Delete the lab and all {{ $labToDelete->machines->count() }} machine(s). This cannot be undone.</flux:text>
+                        <flux:text>Delete the lab and all {{ $labToDelete->machines->count() }} {{ Str::plural('machine', $labToDelete->machines->count()) }}. This cannot be undone.</flux:text>
 
                         <flux:button
                             variant="danger"
                             wire:click="confirmDeleteWithMachines"
-                            wire:confirm="Are you sure you want to delete the lab AND all {{ $labToDelete->machines->count() }} machines? This action cannot be undone."
+                            wire:confirm="Are you sure you want to delete the lab AND all {{ $labToDelete->machines->count() }} {{ Str::plural('machine', $labToDelete->machines->count()) }}? This action cannot be undone."
                             class="w-full"
                         >
                             Delete Lab & All Machines

@@ -100,7 +100,7 @@ class MachineList extends Component
 
         $this->reset(['bulkDeleteCount']);
         Flux::modal('bulk-delete-confirmation')->close();
-        Flux::toast("{$count} machine(s) deleted successfully");
+        Flux::toast("{$count} ".\Illuminate\Support\Str::plural('machine', $count).' deleted successfully');
     }
 
     protected function getMachinesQuery()
