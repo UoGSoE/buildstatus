@@ -39,12 +39,24 @@ class ManageLabs extends Component
 
     public function create(): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $this->reset(['labId', 'name', 'notes']);
         Flux::modal('lab-form')->show();
     }
 
     public function edit($labId): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $lab = Lab::findOrFail($labId);
         $this->labId = $lab->id;
         $this->name = $lab->name;
@@ -54,6 +66,12 @@ class ManageLabs extends Component
 
     public function save(): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $validated = $this->validate([
             'name' => 'required|string|max:255',
             'notes' => 'nullable|string',
@@ -73,6 +91,12 @@ class ManageLabs extends Component
 
     public function delete($labId): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $lab = Lab::findOrFail($labId);
         $lab->delete();
         Flux::toast('Lab deleted successfully');

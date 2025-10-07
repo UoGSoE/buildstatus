@@ -4,11 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Lab;
 use App\Models\Log;
-use App\Models\User;
 use App\Models\Machine;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class TestDataSeeder extends Seeder
 {
@@ -17,10 +16,14 @@ class TestDataSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->create([
+        $admin = User::factory()->staff()->admin()->create([
             'username' => 'admin2x',
-            'is_staff' => true,
             'email' => 'admin2x@example.com',
+            'password' => Hash::make('secret'),
+        ]);
+        $staff = User::factory()->staff()->create([
+            'username' => 'staff2x',
+            'email' => 'staff2x@example.com',
             'password' => Hash::make('secret'),
         ]);
 

@@ -52,12 +52,24 @@ class ManageUsers extends Component
 
     public function create(): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'password', 'isAdmin']);
         Flux::modal('user-form')->show();
     }
 
     public function edit($userId): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $user = User::findOrFail($userId);
         $this->userId = $user->id;
         $this->username = $user->username;
@@ -71,6 +83,12 @@ class ManageUsers extends Component
 
     public function save(): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $rules = [
             'username' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
@@ -92,8 +110,12 @@ class ManageUsers extends Component
             'surname' => $validated['surname'],
             'forenames' => $validated['forenames'],
             'email' => $validated['email'],
-            'is_admin' => $validated['isAdmin'],
         ];
+
+        // Don't allow users to change their own admin status
+        if ($this->userId !== auth()->user()->id) {
+            $data['is_admin'] = $validated['isAdmin'];
+        }
 
         if (! empty($validated['password'])) {
             $data['password'] = Hash::make($validated['password']);
@@ -113,6 +135,18 @@ class ManageUsers extends Component
 
     public function toggleAdmin($userId): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
+        if (auth()->user()->id === $userId) {
+            Flux::toast('You cannot change your own admin status', variant: 'danger');
+
+            return;
+        }
+
         $user = User::findOrFail($userId);
         $user->update(['is_admin' => ! $user->is_admin]);
         Flux::toast($user->is_admin ? 'User promoted to admin' : 'Admin privileges revoked');
@@ -120,6 +154,12 @@ class ManageUsers extends Component
 
     public function delete($userId): void
     {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
         $user = User::findOrFail($userId);
         $user->delete();
         Flux::toast('User deleted successfully');

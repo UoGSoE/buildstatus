@@ -1,9 +1,11 @@
 <div>
     <div class="flex items-center justify-between gap-2 mb-6">
         <flux:heading size="lg">User Management</flux:heading>
-        <flux:button variant="primary" icon="plus" wire:click="create">
-            Add User
-        </flux:button>
+        @if(auth()->user()->isAdmin())
+            <flux:button variant="primary" icon="plus" wire:click="create">
+                Add User
+            </flux:button>
+        @endif
     </div>
 
     <flux:input
@@ -31,30 +33,40 @@
                     <flux:table.cell>{{ $user->forenames }} {{ $user->surname }}</flux:table.cell>
                     <flux:table.cell>{{ $user->email }}</flux:table.cell>
                     <flux:table.cell>
-                        @if ($user->is_admin)
-                            <flux:badge as="button" color="sky" wire:click="toggleAdmin({{ $user->id }})">Yes</flux:badge>
+                        @if(auth()->user()->isAdmin())
+                            @if ($user->is_admin)
+                                <flux:badge as="button" color="sky" wire:click="toggleAdmin({{ $user->id }})">Yes</flux:badge>
+                            @else
+                                <flux:badge as="button" wire:click="toggleAdmin({{ $user->id }})">No</flux:badge>
+                            @endif
                         @else
-                            <flux:badge as="button" wire:click="toggleAdmin({{ $user->id }})">No</flux:badge>
+                            @if ($user->is_admin)
+                                <flux:badge color="sky">Yes</flux:badge>
+                            @else
+                                <flux:badge>No</flux:badge>
+                            @endif
                         @endif
                     </flux:table.cell>
                     <flux:table.cell align="end">
-                        <div class="flex items-center justify-end gap-2">
-                            <flux:button
-                                size="sm"
-                                icon="pencil"
-                                wire:click="edit({{ $user->id }})"
-                            >
-                                Edit
-                            </flux:button>
-                            <flux:button
-                                size="sm"
-                                icon="trash"
-                                wire:click="delete({{ $user->id }})"
-                                wire:confirm="Are you sure you want to delete this user?"
-                            >
-                                Delete
-                            </flux:button>
-                        </div>
+                        @if(auth()->user()->isAdmin())
+                            <div class="flex items-center justify-end gap-2">
+                                <flux:button
+                                    size="sm"
+                                    icon="pencil"
+                                    wire:click="edit({{ $user->id }})"
+                                >
+                                    Edit
+                                </flux:button>
+                                <flux:button
+                                    size="sm"
+                                    icon="trash"
+                                    wire:click="delete({{ $user->id }})"
+                                    wire:confirm="Are you sure you want to delete this user?"
+                                >
+                                    Delete
+                                </flux:button>
+                            </div>
+                        @endif
                     </flux:table.cell>
                 </flux:table.row>
             @endforeach
@@ -106,12 +118,14 @@
                     placeholder="{{ $userId ? 'Leave blank to keep current password' : '' }}"
                 />
 
-                <div class="mb-6">
-                    <flux:checkbox
-                        wire:model="isAdmin"
-                        label="Administrator"
-                    />
-                </div>
+                @if($userId !== auth()->user()->id)
+                    <div class="mb-6">
+                        <flux:checkbox
+                            wire:model="isAdmin"
+                            label="Administrator"
+                        />
+                    </div>
+                @endif
 
                 <div class="flex items-center justify-between">
                     <flux:button type="submit" variant="primary">

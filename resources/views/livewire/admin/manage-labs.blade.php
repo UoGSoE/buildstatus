@@ -1,9 +1,11 @@
 <div>
     <div class="flex items-center justify-between gap-2 mb-6">
         <flux:heading size="lg">Lab Management</flux:heading>
-        <flux:button variant="primary" icon="plus" wire:click="create">
-            Add Lab
-        </flux:button>
+        @if(auth()->user()->isAdmin())
+            <flux:button variant="primary" icon="plus" wire:click="create">
+                Add Lab
+            </flux:button>
+        @endif
     </div>
 
     <flux:input
@@ -30,23 +32,25 @@
                     <flux:table.cell>{{ $lab->machines_count }}</flux:table.cell>
                     <flux:table.cell>{{ Str::limit($lab->notes, 50) }}</flux:table.cell>
                     <flux:table.cell align="end">
-                        <div class="flex items-center justify-end gap-2">
-                            <flux:button
-                                size="sm"
-                                icon="pencil"
-                                wire:click="edit({{ $lab->id }})"
-                            >
-                                Edit
-                            </flux:button>
-                            <flux:button
-                                size="sm"
-                                icon="trash"
-                                wire:click="delete({{ $lab->id }})"
-                                wire:confirm="Are you sure you want to delete this lab?{{ $lab->machines_count > 0 ? ' This will also orphan ' . $lab->machines_count . ' machine(s) which are still associated with this lab.' : '' }}"
-                            >
-                                Delete
-                            </flux:button>
-                        </div>
+                        @if(auth()->user()->isAdmin())
+                            <div class="flex items-center justify-end gap-2">
+                                <flux:button
+                                    size="sm"
+                                    icon="pencil"
+                                    wire:click="edit({{ $lab->id }})"
+                                >
+                                    Edit
+                                </flux:button>
+                                <flux:button
+                                    size="sm"
+                                    icon="trash"
+                                    wire:click="delete({{ $lab->id }})"
+                                    wire:confirm="Are you sure you want to delete this lab?{{ $lab->machines_count > 0 ? ' This will also orphan ' . $lab->machines_count . ' machine(s) which are still associated with this lab.' : '' }}"
+                                >
+                                    Delete
+                                </flux:button>
+                            </div>
+                        @endif
                     </flux:table.cell>
                 </flux:table.row>
             @endforeach
