@@ -182,3 +182,117 @@ test('loads latest 10 logs for machine details', function () {
     $firstMachine = $machines->first();
     expect($firstMachine->logs)->toHaveCount(10);
 });
+
+test('admin can see bulk delete button', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Livewire::test(MachineList::class)
+        ->assertSee('Clear Filtered Machines');
+});
+
+test('non-admin cannot see bulk delete button', function () {
+    $user = User::factory()->create(['is_admin' => false]);
+    $this->actingAs($user);
+
+    Livewire::test(MachineList::class)
+        ->assertDontSee('Clear Filtered Machines');
+});
+
+test('clicking bulk delete opens confirmation modal', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Machine::factory()->count(5)->create(['name' => 'test-machine']);
+
+    Livewire::test(MachineList::class)
+        ->set('filter', 'test')
+        ->call('confirmBulkDelete')
+        ->assertSet('bulkDeleteCount', 5);
+});
+
+test('can bulk delete machines with filter', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Machine::factory()->count(5)->create(['name' => 'alpha-machine']);
+    Machine::factory()->count(3)->create(['name' => 'beta-machine']);
+
+    Livewire::test(MachineList::class)
+        ->set('filter', 'alpha')
+        ->call('confirmBulkDelete')
+        ->call('bulkDelete');
+
+    expect(Machine::where('name', 'like', '%alpha%')->count())->toBe(0);
+    expect(Machine::where('name', 'like', '%beta%')->count())->toBe(3);
+});
+
+test('can bulk delete machines by lab', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    $labA = Lab::factory()->create(['name' => 'Lab A']);
+    $labB = Lab::factory()->create(['name' => 'Lab B']);
+
+    Machine::factory()->count(4)->create(['lab_id' => $labA->id]);
+    Machine::factory()->count(2)->create(['lab_id' => $labB->id]);
+
+    Livewire::test(MachineList::class)
+        ->set('labId', $labA->id)
+        ->call('confirmBulkDelete')
+        ->call('bulkDelete');
+
+    expect(Machine::where('lab_id', $labA->id)->count())->toBe(0);
+    expect(Machine::where('lab_id', $labB->id)->count())->toBe(2);
+});
+
+test('non-admin cannot bulk delete machines', function () {
+    $user = User::factory()->create(['is_admin' => false]);
+    $this->actingAs($user);
+
+    Machine::factory()->count(5)->create(['name' => 'test-machine']);
+
+    Livewire::test(MachineList::class)
+        ->set('filter', 'test')
+        ->call('confirmBulkDelete');
+
+    expect(Machine::where('name', 'like', '%test%')->count())->toBe(5);
+});
+
+test('bulk delete with no matching machines shows warning', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Machine::factory()->count(5)->create(['name' => 'test-machine']);
+
+    Livewire::test(MachineList::class)
+        ->set('filter', 'nonexistent')
+        ->call('confirmBulkDelete')
+        ->assertSet('bulkDeleteCount', 0);
+});
+
+test('bulk delete count reflects current filter', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Machine::factory()->count(10)->create(['name' => 'alpha-machine']);
+    Machine::factory()->count(5)->create(['name' => 'beta-machine']);
+
+    Livewire::test(MachineList::class)
+        ->set('filter', 'alpha')
+        ->call('confirmBulkDelete')
+        ->assertSet('bulkDeleteCount', 10);
+});
+
+test('bulk delete works without any filters', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Machine::factory()->count(3)->create();
+
+    Livewire::test(MachineList::class)
+        ->call('confirmBulkDelete')
+        ->call('bulkDelete');
+
+    expect(Machine::count())->toBe(0);
+});

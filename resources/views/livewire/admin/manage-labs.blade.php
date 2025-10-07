@@ -45,7 +45,6 @@
                                     size="sm"
                                     icon="trash"
                                     wire:click="delete({{ $lab->id }})"
-                                    wire:confirm="Are you sure you want to delete this lab?{{ $lab->machines_count > 0 ? ' This will also orphan ' . $lab->machines_count . ' machine(s) which are still associated with this lab.' : '' }}"
                                 >
                                     Delete
                                 </flux:button>
@@ -90,6 +89,73 @@
                     </flux:button>
                 </div>
             </form>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="delete-lab-confirmation" variant="flyout">
+        <div class="space-y-6">
+            <flux:heading size="lg">Delete Lab with Machines</flux:heading>
+
+            @if($labToDelete)
+                <flux:callout variant="warning">
+                    This lab has <strong>{{ $labToDelete->machines->count() }}</strong> machine(s) associated with it.
+                    Choose how you want to handle them:
+                </flux:callout>
+
+                <flux:separator class="my-4" />
+
+                <div class="space-y-6">
+                    <div class="space-y-4">
+                        <flux:heading size="sm">Option 1: Reassign Machines</flux:heading>
+                        <flux:text>Move all machines to another lab before deleting this one.</flux:text>
+
+                        <flux:select
+                            wire:model="reassignLabId"
+                            label="Reassign machines to"
+                            placeholder="Choose a lab..."
+                        >
+                            <option value="">Choose a lab...</option>
+                            @foreach ($labs->where('id', '!=', $labToDelete->id) as $lab)
+                                <option value="{{ $lab->id }}">{{ $lab->name }}</option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:button
+                            variant="primary"
+                            wire:click="confirmDeleteWithReassign"
+                            class="w-full"
+                        >
+                            Reassign & Delete Lab
+                        </flux:button>
+                    </div>
+
+                    <flux:separator class="my-4" />
+
+                    <div class="space-y-4">
+                        <flux:heading size="sm">Option 2: Delete Everything</flux:heading>
+                        <flux:text>Delete the lab and all {{ $labToDelete->machines->count() }} machine(s). This cannot be undone.</flux:text>
+
+                        <flux:button
+                            variant="danger"
+                            wire:click="confirmDeleteWithMachines"
+                            wire:confirm="Are you sure you want to delete the lab AND all {{ $labToDelete->machines->count() }} machines? This action cannot be undone."
+                            class="w-full"
+                        >
+                            Delete Lab & All Machines
+                        </flux:button>
+                    </div>
+
+                    <flux:separator class="my-4" />
+
+                    <flux:button
+                        type="button"
+                        x-on:click="$flux.modals().close()"
+                        class="w-full"
+                    >
+                        Cancel
+                    </flux:button>
+                </div>
+            @endif
         </div>
     </flux:modal>
 </div>

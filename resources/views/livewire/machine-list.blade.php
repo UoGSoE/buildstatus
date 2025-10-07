@@ -8,6 +8,11 @@
                     <flux:select.option value="{{ $lab->id }}">{{ $lab->name }}</flux:select.option>
                 @endforeach
             </flux:select>
+            @if(auth()->user()->isAdmin())
+                <flux:button variant="danger" icon="trash" wire:click="confirmBulkDelete">
+                    Clear Filtered Machines
+                </flux:button>
+            @endif
         </div>
         <flux:switch wire:model.live="autoRefresh" label="Auto refresh?" />
     </div>
@@ -65,6 +70,38 @@
                     </div>
                 </div>
             @endif
+        </div>
+    </flux:modal>
+
+    <flux:modal name="bulk-delete-confirmation" variant="flyout">
+        <div class="space-y-6">
+            <flux:heading size="lg">Delete Multiple Machines</flux:heading>
+
+            <flux:callout variant="danger" icon="x-circle" heading="Warning: This action cannot be undone!">
+                You are about to permanently delete <strong>{{ $bulkDeleteCount }}</strong> machine(s) that match your current filter.
+                <br><br>
+                This will remove all machine records and their associated logs from the system.
+                <br><br>
+                <strong>This is typically done during the summer rebuild process when clearing out old machines before fresh installations.</strong>
+            </flux:callout>
+
+            <flux:separator class="my-4" />
+
+            <div class="flex items-center justify-between">
+                <flux:button
+                    type="button"
+                    x-on:click="$flux.modals().close()"
+                >
+                    Cancel
+                </flux:button>
+                <flux:button
+                    variant="danger"
+                    wire:click="bulkDelete"
+                    wire:confirm="Are you absolutely sure you want to delete {{ $bulkDeleteCount }} machine(s)? This cannot be undone."
+                >
+                    Delete {{ $bulkDeleteCount }} Machine(s)
+                </flux:button>
+            </div>
         </div>
     </flux:modal>
 </div>

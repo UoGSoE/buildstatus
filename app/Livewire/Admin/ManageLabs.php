@@ -19,6 +19,10 @@ class ManageLabs extends Component
 
     public string $notes = '';
 
+    public $labToDelete = null;
+
+    public $reassignLabId = '';
+
     public function render()
     {
         return view('livewire.admin.manage-labs', [
@@ -98,8 +102,73 @@ class ManageLabs extends Component
         }
 
         $lab = Lab::findOrFail($labId);
+
+        // If lab has machines, show confirmation modal
+        if ($lab->machines()->count() > 0) {
+            $this->labToDelete = $lab;
+            $this->reassignLabId = '';
+            Flux::modal('delete-lab-confirmation')->show();
+
+            return;
+        }
+
+        // No machines, delete directly
         $lab->delete();
         Flux::toast('Lab deleted successfully');
+    }
+
+    public function confirmDeleteWithReassign(): void
+    {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
+        if (! $this->labToDelete) {
+            return;
+        }
+
+        if (empty($this->reassignLabId)) {
+            Flux::toast('Please select a lab to reassign machines to', variant: 'danger');
+
+            return;
+        }
+
+        // Reassign all machines to the new lab
+        $this->labToDelete->machines()->update(['lab_id' => $this->reassignLabId]);
+
+        // Delete the lab
+        $labName = $this->labToDelete->name;
+        $this->labToDelete->delete();
+
+        $this->reset(['labToDelete', 'reassignLabId']);
+        Flux::modal('delete-lab-confirmation')->close();
+        Flux::toast("Lab '{$labName}' deleted and machines reassigned successfully");
+    }
+
+    public function confirmDeleteWithMachines(): void
+    {
+        if (! auth()->user()->isAdmin()) {
+            Flux::toast('Unauthorized action', variant: 'danger');
+
+            return;
+        }
+
+        if (! $this->labToDelete) {
+            return;
+        }
+
+        // Delete all machines first, then delete the lab
+        $machineCount = $this->labToDelete->machines()->count();
+        $this->labToDelete->machines()->delete();
+
+        $labName = $this->labToDelete->name;
+        $this->labToDelete->delete();
+
+        $this->reset(['labToDelete', 'reassignLabId']);
+        Flux::modal('delete-lab-confirmation')->close();
+        Flux::toast("Lab '{$labName}' and {$machineCount} machine(s) deleted successfully");
     }
 
     public function updatedFilter(): void

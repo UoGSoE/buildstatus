@@ -135,13 +135,73 @@ test('validates lab name is required when updating', function () {
         ->assertHasErrors(['name' => 'required']);
 });
 
-test('can delete a lab', function () {
+test('can delete a lab without machines', function () {
     $lab = Lab::factory()->create(['name' => 'Test Lab']);
 
     Livewire::test(ManageLabs::class)
         ->call('delete', $lab->id);
 
     expect(Lab::where('id', $lab->id)->exists())->toBeFalse();
+});
+
+test('deleting lab with machines shows confirmation modal', function () {
+    $lab = Lab::factory()->create(['name' => 'Test Lab']);
+    Machine::factory()->count(5)->create(['lab_id' => $lab->id]);
+
+    $component = Livewire::test(ManageLabs::class)
+        ->call('delete', $lab->id);
+
+    // Lab should still exist
+    expect(Lab::where('id', $lab->id)->exists())->toBeTrue();
+
+    // Modal data should be set
+    expect($component->get('labToDelete'))->not->toBeNull();
+    expect($component->get('labToDelete')->id)->toBe($lab->id);
+});
+
+test('can delete lab and reassign machines to another lab', function () {
+    $labToDelete = Lab::factory()->create(['name' => 'Lab A']);
+    $targetLab = Lab::factory()->create(['name' => 'Lab B']);
+    Machine::factory()->count(5)->create(['lab_id' => $labToDelete->id]);
+
+    Livewire::test(ManageLabs::class)
+        ->call('delete', $labToDelete->id)
+        ->set('reassignLabId', $targetLab->id)
+        ->call('confirmDeleteWithReassign');
+
+    // Lab should be deleted
+    expect(Lab::where('id', $labToDelete->id)->exists())->toBeFalse();
+
+    // All machines should be reassigned to target lab
+    expect(Machine::where('lab_id', $targetLab->id)->count())->toBe(5);
+});
+
+test('can delete lab and all its machines', function () {
+    $lab = Lab::factory()->create(['name' => 'Test Lab']);
+    Machine::factory()->count(5)->create(['lab_id' => $lab->id]);
+
+    Livewire::test(ManageLabs::class)
+        ->call('delete', $lab->id)
+        ->call('confirmDeleteWithMachines');
+
+    // Lab should be deleted
+    expect(Lab::where('id', $lab->id)->exists())->toBeFalse();
+
+    // All machines should be deleted
+    expect(Machine::where('lab_id', $lab->id)->count())->toBe(0);
+});
+
+test('reassign requires selecting a lab', function () {
+    $lab = Lab::factory()->create(['name' => 'Test Lab']);
+    Machine::factory()->count(3)->create(['lab_id' => $lab->id]);
+
+    Livewire::test(ManageLabs::class)
+        ->call('delete', $lab->id)
+        ->set('reassignLabId', '')
+        ->call('confirmDeleteWithReassign');
+
+    // Lab should still exist
+    expect(Lab::where('id', $lab->id)->exists())->toBeTrue();
 });
 
 test('displays notes truncated in table', function () {
@@ -234,9 +294,12 @@ test('non-admin does not see edit and delete buttons', function () {
 
     Lab::factory()->create(['name' => 'Test Lab']);
 
-    Livewire::test(ManageLabs::class)
-        ->assertDontSee('Edit')
-        ->assertDontSee('Delete');
+    $component = Livewire::test(ManageLabs::class);
+
+    // Check that the actions column is empty (no buttons shown)
+    $html = $component->html();
+    expect($html)->not->toContain('wire:click="edit(');
+    expect($html)->not->toContain('wire:click="delete(');
 });
 
 test('admin can see add lab button', function () {
