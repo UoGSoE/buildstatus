@@ -9,12 +9,12 @@
             </flux:select>
             <flux:input wire:model.live="filter" clearable placeholder="Filter" class="w-64" />
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-6">
+            <flux:switch wire:model.live="autoRefresh" label="Auto refresh?" />
             @if(auth()->user()->isAdmin())
-                <flux:button variant="danger" icon="trash" wire:click="confirmBulkDelete" title="Clear Filtered Machines">
+                <flux:button icon="trash" wire:click="confirmBulkDelete" title="Clear Filtered Machines">
                 </flux:button>
             @endif
-            <flux:switch wire:model.live="autoRefresh" label="Auto refresh?" />
         </div>
     </div>
     <flux:separator class="my-2" />
@@ -79,11 +79,9 @@
             <flux:heading size="lg">Delete Multiple Machines</flux:heading>
 
             <flux:callout variant="danger" icon="x-circle" heading="Warning: This action cannot be undone!">
-                You are about to permanently delete <strong>{{ $bulkDeleteCount }}</strong> {{ Str::plural('machine', $bulkDeleteCount) }} that match your current filter.
+                You are about to permanently delete <flux:badge color="red" class="text-bold">{{ $bulkDeleteCount }}</flux:badge> {{ Str::plural('machine', $bulkDeleteCount) }} that match your current filter.
                 <br><br>
                 This will remove all machine records and their associated logs from the system.
-                <br><br>
-                <strong>This is typically done during the summer rebuild process when clearing out old machines before fresh installations.</strong>
             </flux:callout>
 
             <flux:separator class="my-4" />

@@ -35,9 +35,9 @@
                     <flux:table.cell>
                         @if(auth()->user()->isAdmin())
                             @if ($user->is_admin)
-                                <flux:badge as="button" color="sky" wire:click="toggleAdmin({{ $user->id }})">Yes</flux:badge>
+                                <flux:badge as="button" class="cursor-pointer" color="sky" wire:click="toggleAdmin({{ $user->id }})">Yes</flux:badge>
                             @else
-                                <flux:badge as="button" wire:click="toggleAdmin({{ $user->id }})">No</flux:badge>
+                                <flux:badge as="button" class="cursor-pointer" wire:click="toggleAdmin({{ $user->id }})">No</flux:badge>
                             @endif
                         @else
                             @if ($user->is_admin)
@@ -49,7 +49,7 @@
                     </flux:table.cell>
                     <flux:table.cell align="end">
                         @if(auth()->user()->isAdmin())
-                            <div class="flex items-center justify-end gap-2">
+                            <div class="flex items-center justify-end gap-2 cursor-pointer">
                                 <flux:button
                                     size="sm"
                                     icon="pencil"
@@ -61,6 +61,7 @@
                                     icon="trash"
                                     wire:click="delete({{ $user->id }})"
                                     wire:confirm="Are you sure you want to delete this user?"
+                                    class="cursor-pointer"
                                 >
                                 </flux:button>
                             </div>
