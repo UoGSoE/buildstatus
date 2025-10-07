@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-            <flux:input wire:model.live="filter" clearable placeholder="Filter" />
+            <flux:input wire:model.live="filter" clearable placeholder="Filter" class="w-64" />
             <flux:select variant="listbox" searchable placeholder="Choose labs..." wire:model.live="labId">
                 <flux:select.option value="">All labs</flux:select.option>
                 @foreach ($labs as $lab)
