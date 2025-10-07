@@ -16,7 +16,11 @@ class ManageUsers extends Component
 
     public $userId = null;
 
-    public string $name = '';
+    public string $username = '';
+
+    public string $surname = '';
+
+    public string $forenames = '';
 
     public string $email = '';
 
@@ -36,17 +40,19 @@ class ManageUsers extends Component
         return User::query()
             ->when(strlen($this->filter) > 1, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%'.$this->filter.'%')
+                    $q->where('surname', 'like', '%'.$this->filter.'%')
+                        ->orWhere('forenames', 'like', '%'.$this->filter.'%')
+                        ->orWhere('username', 'like', '%'.$this->filter.'%')
                         ->orWhere('email', 'like', '%'.$this->filter.'%');
                 });
             })
-            ->orderBy('name')
+            ->orderBy('surname')
             ->paginate(20);
     }
 
     public function create(): void
     {
-        $this->reset(['userId', 'name', 'email', 'password', 'isAdmin']);
+        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'password', 'isAdmin']);
         Flux::modal('user-form')->show();
     }
 
@@ -54,7 +60,9 @@ class ManageUsers extends Component
     {
         $user = User::findOrFail($userId);
         $this->userId = $user->id;
-        $this->name = $user->name;
+        $this->username = $user->username;
+        $this->surname = $user->surname;
+        $this->forenames = $user->forenames;
         $this->email = $user->email;
         $this->password = '';
         $this->isAdmin = $user->is_admin;
@@ -64,7 +72,9 @@ class ManageUsers extends Component
     public function save(): void
     {
         $rules = [
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'surname' => 'required|string|max:255',
+            'forenames' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email'.($this->userId ? ','.$this->userId : ''),
             'isAdmin' => 'boolean',
         ];
@@ -78,7 +88,9 @@ class ManageUsers extends Component
         $validated = $this->validate($rules);
 
         $data = [
-            'name' => $validated['name'],
+            'username' => $validated['username'],
+            'surname' => $validated['surname'],
+            'forenames' => $validated['forenames'],
             'email' => $validated['email'],
             'is_admin' => $validated['isAdmin'],
         ];
@@ -95,8 +107,15 @@ class ManageUsers extends Component
             Flux::toast('User created successfully');
         }
 
-        $this->reset(['userId', 'name', 'email', 'password', 'isAdmin']);
+        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'password', 'isAdmin']);
         Flux::modal('user-form')->close();
+    }
+
+    public function toggleAdmin($userId): void
+    {
+        $user = User::findOrFail($userId);
+        $user->update(['is_admin' => ! $user->is_admin]);
+        Flux::toast($user->is_admin ? 'User promoted to admin' : 'Admin privileges revoked');
     }
 
     public function delete($userId): void

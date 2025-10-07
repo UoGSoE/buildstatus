@@ -17,6 +17,7 @@
 
     <flux:table :paginate="$users">
         <flux:table.columns>
+            <flux:table.column>Username</flux:table.column>
             <flux:table.column>Name</flux:table.column>
             <flux:table.column>Email</flux:table.column>
             <flux:table.column>Admin</flux:table.column>
@@ -26,13 +27,14 @@
         <flux:table.rows>
             @foreach ($users as $user)
                 <flux:table.row :key="$user->id">
-                    <flux:table.cell variant="strong">{{ $user->name }}</flux:table.cell>
+                    <flux:table.cell variant="strong">{{ $user->username }}</flux:table.cell>
+                    <flux:table.cell>{{ $user->forenames }} {{ $user->surname }}</flux:table.cell>
                     <flux:table.cell>{{ $user->email }}</flux:table.cell>
                     <flux:table.cell>
                         @if ($user->is_admin)
-                            <flux:badge color="green">Yes</flux:badge>
+                            <flux:badge as="button" color="sky" wire:click="toggleAdmin({{ $user->id }})">Yes</flux:badge>
                         @else
-                            <flux:badge>No</flux:badge>
+                            <flux:badge as="button" wire:click="toggleAdmin({{ $user->id }})">No</flux:badge>
                         @endif
                     </flux:table.cell>
                     <flux:table.cell align="end">
@@ -67,8 +69,22 @@
 
             <form wire:submit="save">
                 <flux:input
-                    wire:model="name"
-                    label="Name"
+                    wire:model="username"
+                    label="Username"
+                    class="mb-6"
+                    required
+                />
+
+                <flux:input
+                    wire:model="forenames"
+                    label="Forenames"
+                    class="mb-6"
+                    required
+                />
+
+                <flux:input
+                    wire:model="surname"
+                    label="Surname"
                     class="mb-6"
                     required
                 />

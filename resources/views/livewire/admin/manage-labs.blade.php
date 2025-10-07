@@ -42,7 +42,7 @@
                                 size="sm"
                                 icon="trash"
                                 wire:click="delete({{ $lab->id }})"
-                                wire:confirm="Are you sure you want to delete this lab?"
+                                wire:confirm="Are you sure you want to delete this lab?{{ $lab->machines_count > 0 ? ' This will also orphan ' . $lab->machines_count . ' machine(s) which are still associated with this lab.' : '' }}"
                             >
                                 Delete
                             </flux:button>
