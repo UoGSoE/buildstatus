@@ -53,7 +53,7 @@
         </flux:table.rows>
     </flux:table>
 
-    <flux:modal name="lab-form">
+    <flux:modal name="lab-form" variant="flyout">
         <div class="space-y-6">
             <flux:heading size="lg">
                 {{ $labId ? 'Edit Lab' : 'Create Lab' }}

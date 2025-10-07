@@ -61,7 +61,7 @@
         </flux:table.rows>
     </flux:table>
 
-    <flux:modal name="user-form">
+    <flux:modal name="user-form" variant="flyout">
         <div class="space-y-6">
             <flux:heading size="lg">
                 {{ $userId ? 'Edit User' : 'Create User' }}
@@ -106,11 +106,12 @@
                     placeholder="{{ $userId ? 'Leave blank to keep current password' : '' }}"
                 />
 
-                <flux:checkbox
-                    wire:model="isAdmin"
-                    label="Administrator"
-                    class="mb-6"
-                />
+                <div class="mb-6">
+                    <flux:checkbox
+                        wire:model="isAdmin"
+                        label="Administrator"
+                    />
+                </div>
 
                 <div class="flex items-center justify-between">
                     <flux:button type="submit" variant="primary">
