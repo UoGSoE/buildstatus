@@ -1,61 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+> [!NOTE]
+> This project is a day-one prototype and remains in active early development. Expect breaking changes while the core domain takes shape.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Build Status
 
-## About Laravel
+Build Status is a Laravel + Livewire application that helps lab management teams monitor the operating-system build and maintenance status of university machines across multiple locations. The long-term goal is to provide at-a-glance insights for support staff while exposing a simple integration surface for automated build pipelines.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Audience:** Operations staff who need to track machine provisioning progress and leadership teams who require high-level visibility.
+- **Problem:** Spreadsheets and ad-hoc tooling make it hard to understand where lab machines sit in their build lifecycle.
+- **Solution:** A central dashboard that ingests machine updates via API, stores change history, and presents live status cards with drill-down details.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Current Capabilities
 
-## Learning Laravel
+- Live dashboard listing lab machines with status, lab assignment, and recent update time.
+- Modal and dedicated detail pages showing machine metadata plus paginated log history.
+- REST API endpoint (Sanctum-protected) for upstream systems to push machine updates.
+- Automatic lab creation on first sighting of a new lab name.
+- Background job queue (Laravel Horizon ready) to process machine updates and persist log entries.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Roadmap Snapshot
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- Simulated data ingest command for local testing.
+- Administrative tooling for managing labs, machine notes, and retention policies.
+- Broader API surface and webhook integrations.
+- Expanded automated test coverage and CI gating.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Getting Started (Developers)
 
-## Laravel Sponsors
+These instructions assume familiarity with Laravel tooling and that you have Docker + Lando available locally.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Clone & Configure
 
-### Premium Partners
+```bash
+git clone <repository-url>
+cd buildstatus
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 2. Install Dependencies
+
+```bash
+composer install
+npm install
+npm run build
+```
+
+### 3. Boot the Lando Stack
+
+```bash
+lando start
+```
+
+### 4. Provision Demo Data
+
+```bash
+lando mfs
+```
+
+The `mfs` tooling command will drop, migrate, and seed the database with sample labs, machines, logs, and a preconfigured admin user (`admin2x@example.com`).
+
+### 5. Access the App
+
+- Web: http://buildstatus.lndo.site (or the URL provided by `lando info`).
+- Horizon: `lando horizon`.
+- Tests: `lando test` (runs Pest in parallel).
+
+If UI changes are not visible, run `npm run dev` (either on the host or via the `lando npmd` tooling command).
+
+## Development Workflow
+
+- **Queues:** Machine updates are dispatched to the `MachineUpdate` queued job; ensure a queue worker (Horizon or `php artisan queue:work`) is running when consuming live data.
+- **Livewire Components:** Dashboard (`App\Livewire\MachineList`) and detail view (`App\Livewire\MachineDetails`) power the UI, using Flux UI Pro components for styling.
+- **Authentication:** Keycloak SSO via Socialite, with optional local login when SSO is disabled. Access is restricted to authenticated users.
+- **Configuration:** Core settings live in `config/sso.php` and `config/buildstatus.php` (base domain for hostname shortening).
+
+## API
+
+`POST /api/machine`
+
+- **Auth:** Sanctum token (`auth:sanctum`).
+- **Payload:**
+  - `name` (string, required)
+  - `ip_address`, `status`, `notes`, `lab_name` (optional strings)
+- **Behavior:** Dispatches a queued job that upserts machine metadata, creates labs on demand, and records a JSON log entry.
+
+## Testing
+
+- Pest v4 with RefreshDatabase trait powers the feature suites.
+- Coverage includes API validation, queued job behavior, and Livewire component rendering.
+- Run targeted suites with `lando test --filter=MachineUpdateTest` or similar.
+
+## Tech Stack
+
+- Laravel 12, PHP 8.4
+- Livewire 3 + Flux UI Pro components
+- Sanctum authentication, Horizon queue monitoring
+- MySQL (default), Redis cache/session via Lando
+- Tailwind CSS 4 with Vite bundling
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+As the project stabilizes, we will publish contribution guidelines. For now, coordinate directly with the core team before opening pull requests—core domain decisions are still in flux.
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
