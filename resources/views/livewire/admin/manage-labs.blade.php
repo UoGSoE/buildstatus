@@ -28,7 +28,9 @@
         <flux:table.rows>
             @foreach ($labs as $lab)
                 <flux:table.row :key="$lab->id">
-                    <flux:table.cell variant="strong">{{ $lab->name }}</flux:table.cell>
+                    <flux:table.cell variant="strong">
+                        <flux:link :href="route('home', ['lab_id' => $lab->id])">{{ $lab->name }}</flux:link>
+                    </flux:table.cell>
                     <flux:table.cell>{{ $lab->machines_count }}</flux:table.cell>
                     <flux:table.cell>{{ Str::limit($lab->notes, 50) }}</flux:table.cell>
                     <flux:table.cell align="end">
