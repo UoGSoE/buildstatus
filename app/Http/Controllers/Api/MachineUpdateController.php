@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Lab;
-use App\Models\Machine;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMachineUpdateRequest;
 use App\Jobs\MachineUpdate;
