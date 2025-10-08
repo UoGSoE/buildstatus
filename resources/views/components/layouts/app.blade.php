@@ -31,6 +31,9 @@
                     <flux:sidebar.item icon="users" href="{{ route('admin.users') }}" wire:navigate>Users</flux:sidebar.item>
                 </flux:sidebar.nav>
                 <flux:sidebar.nav>
+                    <flux:sidebar.item icon="user-circle" href="{{ route('profile') }}" wire:navigate>Profile</flux:sidebar.item>
+                </flux:sidebar.nav>
+                <flux:sidebar.nav>
                     <flux:sidebar.item tooltip="Logout" icon="arrow-right-start-on-rectangle">
                         <form method="post" action="{{ route('auth.logout') }}">
                             @csrf
@@ -50,6 +53,7 @@
             <flux:dropdown position="top" align="start">
 
                 <flux:menu>
+                    <flux:menu.item icon="user-circle" href="{{ route('profile') }}" wire:navigate>Profile</flux:menu.item>
                     <flux:menu.item icon="arrow-right-start-on-rectangle">
                         <form method="post" action="{{ route('auth.logout') }}">
                             @csrf
