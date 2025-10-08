@@ -453,14 +453,14 @@ test('admin can see add user button', function () {
 });
 
 test('admin can see edit and delete buttons', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $this->actingAs($admin);
 
     User::factory()->create(['username' => 'testuser']);
 
     Livewire::test(ManageUsers::class)
-        ->assertSee('Edit')
-        ->assertSee('Delete');
+        ->assertSeeHtml('edit-button-')
+        ->assertSeeHtml('delete-button-');
 });
 
 test('admin can toggle admin badge by clicking it', function () {

@@ -317,6 +317,6 @@ test('admin can see edit and delete buttons', function () {
     Lab::factory()->create(['name' => 'Test Lab']);
 
     Livewire::test(ManageLabs::class)
-        ->assertSee('Edit')
-        ->assertSee('Delete');
+        ->assertSeeHtml('edit-button-')
+        ->assertSeeHtml('delete-button-');
 });

@@ -35,12 +35,14 @@
                         @if(auth()->user()->isAdmin())
                             <div class="flex items-center justify-end gap-2">
                                 <flux:button
+                                    name="edit-button-{{ $lab->id }}"
                                     size="sm"
                                     icon="pencil"
                                     wire:click="edit({{ $lab->id }})"
                                 >
                                 </flux:button>
                                 <flux:button
+                                    name="delete-button-{{ $lab->id }}"
                                     size="sm"
                                     icon="trash"
                                     wire:click="delete({{ $lab->id }})"
