@@ -3,6 +3,73 @@
 ## Project Overview
 This is a proof-of-concept Laravel/Livewire application for monitoring lab machine build statuses across multiple university labs. The approach is to spike out functionality first to understand the domain, then backfill with comprehensive tests once the design is more confident.
 
+## Session Summary (2025-10-08 - Planning)
+
+### Planning: User API Key Management
+
+**Goal**: Allow users to manage their own Sanctum API tokens through a profile interface.
+
+**Research Completed**:
+
+1. **Reviewed Existing Admin Components**
+   - `resources/views/livewire/admin/manage-labs.blade.php`
+   - `resources/views/livewire/admin/manage-users.blade.php`
+
+2. **Established UI Patterns to Follow**:
+   - Header: `flex items-center justify-between` with `flux:heading size="lg"` + action button
+   - Filter input: `flux:input` with `wire:model.live` and magnifying-glass icon
+   - `flux:separator class="my-4"` for visual separation
+   - `flux:table :paginate="$collection"` for data tables
+   - Modals: `variant="flyout"` for forms, `space-y-6` for spacing
+   - Action buttons: `size="sm"` with icons (pencil, trash)
+   - Button groups: Primary left, Cancel right with `flex items-center justify-between`
+   - Cancel buttons: `x-on:click="$flux.modals().close()"`
+   - Destructive actions: `wire:confirm` for confirmation prompts
+   - Warning modals: `flux:callout variant="warning"` for scary actions
+
+3. **Sanctum API Token Features** (via Laravel Boost MCP docs search):
+   - ✅ `last_used_at` is tracked **automatically** by Sanctum in the `personal_access_tokens` table
+   - ✅ Automatically updated whenever the token authenticates a request
+   - Token creation: `$user->createToken($name)->plainTextToken`
+   - Token revocation: `$user->tokens()->where('id', $tokenId)->delete()`
+   - **IMPORTANT**: Plaintext token only available via `$token->plainTextToken` immediately after creation
+   - After creation, tokens are hashed in database (SHA-256) and cannot be retrieved
+
+**Planned Implementation**:
+
+1. **Profile Page Structure**:
+   - Create `/profile` route
+   - Create `Profile` Livewire component (container)
+   - Include `ApiKeys` Livewire component within Profile
+   - Leaves room for future profile-related features
+
+2. **ApiKeys Component Features**:
+   - Table columns: Name, Created, Last Used, Actions
+   - "Create New Token" button → flyout modal
+   - Modal collects token name (e.g., "Production Server", "Testing")
+   - After creation: Show plaintext token ONCE with copy button
+   - Warning: "Copy this token now. It won't be shown again."
+   - "Revoke" button for each token → confirmation
+   - Display last_used_at as human-readable (e.g., "2 hours ago", "Never")
+   - Users can only see/manage their own tokens (scoped query)
+
+**Key Database Fields Available**:
+- `name` - Token name/description
+- `token` - SHA-256 hash (not user-visible)
+- `last_used_at` - Automatically updated by Sanctum
+- `created_at` - When token was created
+- `expires_at` - Optional (not currently used)
+
+**Next Steps**:
+- Create Profile Livewire component
+- Create ApiKeys Livewire component
+- Add routes for `/profile`
+- Implement token creation with one-time plaintext display
+- Implement token revocation
+- Write comprehensive tests
+
+---
+
 ## Session Summary (2025-10-07 - Part 2)
 
 ### What We Accomplished
