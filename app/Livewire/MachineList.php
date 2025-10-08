@@ -117,4 +117,14 @@ class MachineList extends Component
                 $query->where('lab_id', $this->labId);
             });
     }
+
+    public function updatedLabId(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
 }
