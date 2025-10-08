@@ -30,11 +30,11 @@
             >
                 <div class="flex flex-col gap-2">
                     <flux:heading class="flex items-center gap-2"><flux:icon.computer-desktop />{{ $machine->short_hostname }}</flux:heading>
-                    <flux:text class="flex items-center gap-2"><flux:icon.academic-cap />{{ $machine->lab->name }}</flux:text>
+                    <flux:text class="flex items-center gap-2"><flux:icon.academic-cap />{{ $machine->lab?->name ?? 'N/A' }}</flux:text>
                     <flux:text class="flex items-center gap-2"><flux:icon.clock />{{ $machine->updated_at->diffForHumans() }}</flux:text>
                 </div>
                 <flux:separator class="my-2" />
-                <flux:badge class="w-full">{{ ucfirst($machine->status) }}</flux:badge>
+                <flux:badge class="w-full">{{ ucfirst($machine->status ?? 'None') }}</flux:badge>
             </flux:card>
         @endforeach
     </div>

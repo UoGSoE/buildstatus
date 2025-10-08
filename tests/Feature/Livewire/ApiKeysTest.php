@@ -191,13 +191,12 @@ test('displays table headers', function () {
 });
 
 test('token list is ordered by created date descending', function () {
-    // Create old token first and manually set timestamp
+    // Create old token five days ago using the time travel helpers
+    $this->travel(-5)->days();
     $oldTokenData = $this->user->createToken('Old Token');
-    $oldTokenData->accessToken->created_at = now()->subDays(5);
-    $oldTokenData->accessToken->save();
+    $this->travelBack();
+    $oldTokenData->accessToken->refresh();
 
-    // Wait a moment then create new token
-    sleep(1);
     $newTokenData = $this->user->createToken('New Token');
 
     $component = Livewire::test(ApiKeys::class);
