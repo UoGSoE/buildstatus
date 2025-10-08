@@ -61,12 +61,243 @@ This is a proof-of-concept Laravel/Livewire application for monitoring lab machi
 - `expires_at` - Optional (not currently used)
 
 **Next Steps**:
-- Create Profile Livewire component
-- Create ApiKeys Livewire component
-- Add routes for `/profile`
-- Implement token creation with one-time plaintext display
-- Implement token revocation
-- Write comprehensive tests
+- ~~Create Profile Livewire component~~ ✅ Done
+- ~~Create ApiKeys Livewire component~~ ✅ Done
+- ~~Add routes for `/profile`~~ ✅ Done
+- ~~Implement token creation with one-time plaintext display~~ ✅ Done
+- ~~Implement token revocation~~ ✅ Done
+- ~~Write comprehensive tests~~ ✅ Done
+
+---
+
+## Session Summary (2025-10-08 - Implementation)
+
+### What We Accomplished
+
+1. **User API Key Management** (27 tests passing)
+   - Created `Profile` Livewire component as container for future profile features
+   - Created `ApiKeys` Livewire component with full token management
+   - Added `/profile` route with authentication middleware
+   - Updated sidebar navigation (desktop & mobile) with profile link
+
+2. **Token Management Features**
+   - **Create Token**: Flyout modal with name input and validation
+   - **One-Time Display**: Modal showing plaintext token with warning callout
+   - **Copy to Clipboard**: Used Flux's `copyable` attribute on readonly input (very slick!)
+   - **Revoke Token**: Delete button with `wire:confirm` for confirmation
+   - **Display Tokens**: Table showing Name, Created, Last Used, Actions
+   - **Last Used Tracking**: Shows human-readable time ("2 hours ago") or "Never" badge
+   - **User Isolation**: Users can only see/manage their own tokens
+
+3. **Admin Enhancement: View All Tokens** (7 additional tests)
+   - Added `<flux:switch>` toggle for admins to view all users' tokens
+   - Dynamic table: adds "User" column when viewing all tokens
+   - Shows username + sky-colored "Admin" badge for admin users
+   - Admins can revoke any user's token (not just their own)
+   - Security: Non-admins can't access other users' tokens even if they bypass UI
+
+4. **UI Implementation**
+   - Followed established FluxUI patterns from admin components
+   - Used `flux:field variant="inline"` for switch (with custom flexbox wrapper due to quirk)
+   - Table uses `wire:key="token-{{ $token->id }}"` for explicit Livewire tracking
+   - Empty state with proper colspan calculation (4 or 5 columns)
+   - Proper spacing and layout matching existing components
+
+### Key Design Decisions
+
+#### One-Time Token Display with Flux `copyable`
+**Challenge**: Need to show plaintext token once, make it easy to copy, and warn user.
+
+**Solution**:
+- After token creation, close creation modal and open token-display modal
+- Store `$plaintextToken` temporarily in component state
+- Use `<flux:input readonly copyable>` for one-click copy
+- Show warning callout: "Copy this token now. For security reasons, it won't be shown again."
+- "Done" button clears `$plaintextToken` and closes modal
+
+**Rationale**: Flux's built-in `copyable` attribute provides polished UX without custom JavaScript.
+
+#### Admin Toggle for Viewing All Tokens
+**Challenge**: Admins need to manage all tokens, but normal view should show only own tokens.
+
+**Solution**:
+- Boolean `$viewAllKeys` property (default: false)
+- When true + admin: query `PersonalAccessToken::with('tokenable')` for all tokens
+- When false or non-admin: query `auth()->user()->tokens()` (scoped)
+- Backend authorization in `revoke()`: check `isAdmin()` before allowing cross-user deletion
+- Dynamic table columns: User column only appears when `$viewAllKeys && isAdmin()`
+
+**Rationale**: Single component handles both use cases without code duplication. Admin power without complexity for regular users.
+
+#### Table Row Keys Best Practice
+**Issue**: Using `:key` doesn't clearly indicate it's a Livewire feature.
+
+**Solution**: Use `wire:key="token-{{ $token->id }}"` instead of `:key="$token->id"`
+
+**Rationale**: More explicit about Livewire's role, includes descriptive prefix, easier for future developers to understand.
+
+### UI Quirks Encountered
+
+#### Flux `variant="inline"` Field Quirk
+**Problem**: `<flux:field variant="inline">` with `<flux:label>` and `<flux:switch>` was applying what looked like `justify-between`, spreading label far left and switch far right.
+
+**Solution**: Wrapped in custom div with `flex items-center justify-end gap-2` to control layout.
+
+**Note**: May be intended behavior for inline fields, but custom wrapper gave desired compact appearance.
+
+### Test Coverage Summary
+
+```
+tests/Feature/Livewire/
+├── ApiKeysTest.php (28 tests, 57 assertions)
+│   ├── Component rendering and display
+│   ├── Token creation with validation (name required, max 255)
+│   ├── Plaintext token one-time display
+│   ├── Token revocation and database verification
+│   ├── User isolation (can't see/revoke others' tokens)
+│   ├── Last used date formatting
+│   ├── Table ordering (newest first)
+│   ├── Admin toggle switch visibility
+│   ├── Admin can view all users' tokens
+│   ├── Admin can revoke any token
+│   ├── Non-admin security bypass prevention
+│   ├── Dynamic user column display
+│   └── Admin badge display
+└── ProfileTest.php (6 tests, 7 assertions)
+    ├── Component rendering
+    ├── Profile heading and description
+    ├── ApiKeys component inclusion
+    ├── Route accessibility
+    └── Authentication requirement
+```
+
+**Total**: 34 tests passing (64 assertions)
+
+### Commands to Remember
+
+```bash
+# Access profile page
+/profile
+
+# Run profile/API key tests
+lando artisan test tests/Feature/Livewire/ApiKeysTest.php
+lando artisan test tests/Feature/Livewire/ProfileTest.php
+
+# Run all profile tests
+lando artisan test tests/Feature/Livewire/ApiKeysTest.php tests/Feature/Livewire/ProfileTest.php
+
+# Format code (always run before committing)
+vendor/bin/pint --dirty
+```
+
+### Patterns Established
+
+1. **Flux Copyable Input for Sensitive Data**
+   ```blade
+   <flux:input
+       :value="$plaintextToken"
+       label="API Token"
+       icon="key"
+       readonly
+       copyable
+   />
+   ```
+
+2. **One-Time Display Pattern**
+   ```php
+   // After creation
+   $this->plaintextToken = $token->plainTextToken;
+   Flux::modal('creation-form')->close();
+   Flux::modal('display-token')->show();
+
+   // On dismiss
+   public function closeDisplay(): void {
+       $this->plaintextToken = null;
+       Flux::modal('display-token')->close();
+   }
+   ```
+
+3. **Admin Toggle Pattern**
+   ```php
+   public bool $viewAllKeys = false;
+
+   public function render() {
+       $query = $this->viewAllKeys && auth()->user()->isAdmin()
+           ? Model::with('relation')->orderBy('created_at', 'desc')
+           : auth()->user()->scopedQuery()->orderBy('created_at', 'desc');
+   }
+   ```
+
+4. **Dynamic Table Columns**
+   ```blade
+   <flux:table.columns>
+       @if($condition && auth()->user()->isAdmin())
+           <flux:table.column>Extra Column</flux:table.column>
+       @endif
+       <!-- regular columns -->
+   </flux:table.columns>
+   ```
+
+5. **Wire Key with Descriptive Prefix**
+   ```blade
+   @foreach ($items as $item)
+       <flux:table.row wire:key="item-{{ $item->id }}">
+   @endforeach
+   ```
+
+### Security Considerations
+
+1. **Backend Authorization is King**
+   - Never rely solely on frontend conditionals (`@if(isAdmin())`)
+   - Always check authorization in component methods
+   - Use early returns with danger toasts for unauthorized attempts
+
+2. **Token Revocation Guards**
+   ```php
+   public function revoke($tokenId): void {
+       if (auth()->user()->isAdmin()) {
+           $token = PersonalAccessToken::find($tokenId);
+       } else {
+           $token = auth()->user()->tokens()->where('id', $tokenId)->first();
+       }
+
+       if (!$token) {
+           Flux::toast('Token not found', variant: 'danger');
+           return;
+       }
+
+       $token->delete();
+   }
+   ```
+
+3. **Query Scoping in render()**
+   - Non-admins always get scoped queries (`auth()->user()->tokens()`)
+   - Admin toggle requires both `$viewAllKeys === true` AND `isAdmin()` check
+   - Prevents URL manipulation or direct property setting from bypassing security
+
+### Laravel Boost MCP Usage
+
+Successfully used `search-docs` tool to find:
+- Flux switch component proper syntax (`variant="inline"` with separate `flux:label`)
+- Flux input `copyable` attribute documentation
+- Confirmed Sanctum's `last_used_at` automatic tracking
+
+### Next Steps (Future Sessions)
+
+1. ~~User API Key Management~~ ✅ Done
+2. Consider adding token abilities/scopes for fine-grained permissions
+3. Consider token expiration dates (field exists but not currently used)
+4. Add audit logging for token creation/revocation
+5. Consider showing token usage statistics (API calls made with each token)
+
+### Notes for Future Developers
+
+- **Flux `copyable`**: Only works over HTTPS (won't work on plain HTTP in production)
+- **Wire Keys**: Always use descriptive prefixes (`wire:key="token-{{ $id }}"` not just `:key="$id"`)
+- **Admin Toggles**: Backend authorization is required; never trust frontend conditionals alone
+- **One-Time Display**: Store sensitive data in component state temporarily, clear on modal close
+- **Sanctum Tokens**: `last_used_at` updates automatically - no manual intervention needed
+- **Table Columns**: Dynamic columns need corresponding dynamic colspan in empty states
 
 ---
 

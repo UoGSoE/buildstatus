@@ -26,6 +26,9 @@ class TestDataSeeder extends Seeder
             'email' => 'staff2x@example.com',
             'password' => Hash::make('secret'),
         ]);
+        $staff->createToken('api-token1');
+        $staff->createToken('api-token2');
+        $staff->createToken('api-token3');
 
         Lab::factory(10)->create();
         Lab::all()->each(function ($lab) {

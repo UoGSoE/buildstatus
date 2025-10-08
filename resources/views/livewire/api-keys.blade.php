@@ -6,10 +6,22 @@
         </flux:button>
     </div>
 
+    @if(auth()->user()->isAdmin())
+    <div class="flex items-center justify-end gap-2">
+        <flux:field variant="inline">
+            <flux:label>View all users tokens</flux:label>
+            <flux:switch wire:model.live="viewAllKeys" />
+        </flux:field>
+    </div>
+    @endif
+
     <flux:separator class="my-4" />
 
     <flux:table>
         <flux:table.columns>
+            @if($viewAllKeys && auth()->user()->isAdmin())
+                <flux:table.column>User</flux:table.column>
+            @endif
             <flux:table.column>Name</flux:table.column>
             <flux:table.column>Created</flux:table.column>
             <flux:table.column>Last Used</flux:table.column>
@@ -18,7 +30,15 @@
 
         <flux:table.rows>
             @forelse ($tokens as $token)
-                <flux:table.row :key="$token->id">
+                <flux:table.row wire:key="token-{{ $token->id }}">
+                    @if($viewAllKeys && auth()->user()->isAdmin())
+                        <flux:table.cell>
+                            {{ $token->tokenable->username ?? 'Unknown' }}
+                            @if($token->tokenable->is_admin ?? false)
+                                <flux:badge color="sky" size="sm">Admin</flux:badge>
+                            @endif
+                        </flux:table.cell>
+                    @endif
                     <flux:table.cell variant="strong">{{ $token->name }}</flux:table.cell>
                     <flux:table.cell>{{ $token->created_at->format('M j, Y g:i A') }}</flux:table.cell>
                     <flux:table.cell>
@@ -40,7 +60,7 @@
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="4" class="text-center text-zinc-500">
+                    <flux:table.cell colspan="{{ $viewAllKeys && auth()->user()->isAdmin() ? 5 : 4 }}" class="text-center text-zinc-500">
                         No API tokens created yet.
                     </flux:table.cell>
                 </flux:table.row>

@@ -206,3 +206,90 @@ test('token list is ordered by created date descending', function () {
     expect($tokens->first()->name)->toBe('New Token');
     expect($tokens->last()->name)->toBe('Old Token');
 });
+
+// Admin functionality tests
+test('admin sees view all tokens switch', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Livewire::test(ApiKeys::class)
+        ->assertSee('View all users tokens');
+});
+
+test('non-admin does not see view all tokens switch', function () {
+    Livewire::test(ApiKeys::class)
+        ->assertDontSee('View all users tokens');
+});
+
+test('admin can toggle to view all users tokens', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    $otherUser = User::factory()->create();
+    $otherUser->createToken('Other User Token');
+    $admin->createToken('Admin Token');
+
+    $component = Livewire::test(ApiKeys::class)
+        ->assertSee('Admin Token')
+        ->assertDontSee('Other User Token')
+        ->set('viewAllKeys', true)
+        ->assertSee('Admin Token')
+        ->assertSee('Other User Token');
+
+    $tokens = $component->viewData('tokens');
+    expect($tokens->count())->toBe(2);
+});
+
+test('non-admin cannot view all tokens even if they set viewAllKeys to true', function () {
+    $otherUser = User::factory()->create();
+    $otherUser->createToken('Other User Token');
+    $this->user->createToken('My Token');
+
+    Livewire::test(ApiKeys::class)
+        ->set('viewAllKeys', true)
+        ->assertSee('My Token')
+        ->assertDontSee('Other User Token');
+});
+
+test('user column appears when admin views all tokens', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    $otherUser = User::factory()->create(['username' => 'testuser']);
+    $otherUser->createToken('Test Token');
+
+    Livewire::test(ApiKeys::class)
+        ->assertDontSee('User')
+        ->set('viewAllKeys', true)
+        ->assertSee('User')
+        ->assertSee('testuser');
+});
+
+test('admin can revoke other users tokens', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    $otherUser = User::factory()->create();
+    $otherToken = $otherUser->createToken('Other User Token');
+    $tokenId = $otherToken->accessToken->id;
+
+    expect($otherUser->tokens()->count())->toBe(1);
+
+    Livewire::test(ApiKeys::class)
+        ->set('viewAllKeys', true)
+        ->call('revoke', $tokenId);
+
+    expect($otherUser->tokens()->count())->toBe(0);
+});
+
+test('admin badge shows in user column for admin users', function () {
+    $admin = User::factory()->create(['is_admin' => true, 'username' => 'admin']);
+    $this->actingAs($admin);
+
+    $admin->createToken('Admin Token');
+
+    Livewire::test(ApiKeys::class)
+        ->set('viewAllKeys', true)
+        ->assertSee('admin')
+        ->assertSee('Admin'); // The badge text
+});

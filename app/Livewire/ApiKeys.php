@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Flux\Flux;
+use Laravel\Sanctum\PersonalAccessToken;
 use Livewire\Component;
 
 class ApiKeys extends Component
@@ -11,10 +12,18 @@ class ApiKeys extends Component
 
     public ?string $plaintextToken = null;
 
+    public bool $viewAllKeys = false;
+
     public function render()
     {
+        $tokens = $this->viewAllKeys && auth()->user()->isAdmin()
+            ? PersonalAccessToken::with('tokenable')
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : auth()->user()->tokens()->orderBy('created_at', 'desc')->get();
+
         return view('livewire.api-keys', [
-            'tokens' => auth()->user()->tokens()->orderBy('created_at', 'desc')->get(),
+            'tokens' => $tokens,
         ]);
     }
 
@@ -42,7 +51,12 @@ class ApiKeys extends Component
 
     public function revoke($tokenId): void
     {
-        $token = auth()->user()->tokens()->where('id', $tokenId)->first();
+        // Allow admin to delete any token, otherwise only own tokens
+        if (auth()->user()->isAdmin()) {
+            $token = PersonalAccessToken::find($tokenId);
+        } else {
+            $token = auth()->user()->tokens()->where('id', $tokenId)->first();
+        }
 
         if (! $token) {
             Flux::toast('Token not found', variant: 'danger');
