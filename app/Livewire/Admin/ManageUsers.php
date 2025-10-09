@@ -160,6 +160,12 @@ class ManageUsers extends Component
             return;
         }
 
+        if (auth()->user()->id === $userId) {
+            Flux::toast('You cannot delete your own account', variant: 'danger');
+
+            return;
+        }
+
         $user = User::findOrFail($userId);
         $user->delete();
         Flux::toast('User deleted successfully');

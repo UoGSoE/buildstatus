@@ -516,3 +516,30 @@ test('admin does not see admin checkbox when editing themselves', function () {
         ->call('edit', $admin->id)
         ->assertDontSee('Administrator');
 });
+
+test('admin cannot delete themselves', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    Livewire::test(ManageUsers::class)
+        ->call('delete', $admin->id);
+
+    $admin->refresh();
+    expect(User::where('id', $admin->id)->exists())->toBeTrue();
+});
+
+test('admin sees disabled delete button for themselves', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin);
+
+    $otherUser = User::factory()->create(['username' => 'otheruser']);
+
+    $component = Livewire::test(ManageUsers::class);
+
+    // Should see enabled delete button for other user
+    $component->assertSeeHtml('delete-button-'.$otherUser->id);
+
+    // Should see delete button for themselves but it should be disabled
+    $component->assertSeeHtml('delete-button-'.$admin->id);
+    $component->assertSeeHtml('disabled');
+});

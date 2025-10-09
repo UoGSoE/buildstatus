@@ -64,6 +64,7 @@
                                     wire:click="delete({{ $user->id }})"
                                     wire:confirm="Are you sure you want to delete this user?"
                                     class="cursor-pointer"
+                                    :disabled="$user->id === auth()->user()->id"
                                 >
                                 </flux:button>
                             </div>
