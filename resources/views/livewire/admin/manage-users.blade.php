@@ -111,15 +111,6 @@
                     required
                 />
 
-                <flux:input
-                    wire:model="password"
-                    label="Password"
-                    type="password"
-                    class="mb-6"
-                    :required="!$userId"
-                    placeholder="{{ $userId ? 'Leave blank to keep current password' : '' }}"
-                />
-
                 @if($userId !== auth()->user()->id)
                     <div class="mb-6">
                         <flux:checkbox

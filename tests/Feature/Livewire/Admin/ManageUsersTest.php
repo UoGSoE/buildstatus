@@ -114,7 +114,6 @@ test('can open create modal', function () {
         ->assertSet('surname', '')
         ->assertSet('forenames', '')
         ->assertSet('email', '')
-        ->assertSet('password', '')
         ->assertSet('isAdmin', false);
 });
 
@@ -125,7 +124,6 @@ test('can create a new user', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', 'newuser@example.com')
-        ->set('password', 'password123')
         ->set('isAdmin', true)
         ->call('save');
 
@@ -137,6 +135,21 @@ test('can create a new user', function () {
     expect($user->is_admin)->toBeTrue();
 });
 
+test('auto-generates password when creating user', function () {
+    Livewire::test(ManageUsers::class)
+        ->call('create')
+        ->set('username', 'newuser')
+        ->set('surname', 'Smith')
+        ->set('forenames', 'John')
+        ->set('email', 'newuser@example.com')
+        ->call('save');
+
+    $user = User::where('username', 'newuser')->first();
+    expect($user)->not->toBeNull();
+    expect($user->password)->not->toBeEmpty();
+    expect(strlen($user->password))->toBeGreaterThan(50); // Hashed passwords are long
+});
+
 test('validates username is required when creating', function () {
     Livewire::test(ManageUsers::class)
         ->call('create')
@@ -144,7 +157,6 @@ test('validates username is required when creating', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', 'test@example.com')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['username' => 'required']);
 });
@@ -156,7 +168,6 @@ test('validates surname is required when creating', function () {
         ->set('surname', '')
         ->set('forenames', 'John')
         ->set('email', 'test@example.com')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['surname' => 'required']);
 });
@@ -168,7 +179,6 @@ test('validates forenames is required when creating', function () {
         ->set('surname', 'Smith')
         ->set('forenames', '')
         ->set('email', 'test@example.com')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['forenames' => 'required']);
 });
@@ -180,7 +190,6 @@ test('validates email is required when creating', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', '')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['email' => 'required']);
 });
@@ -192,7 +201,6 @@ test('validates email must be valid format', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', 'not-an-email')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['email' => 'email']);
 });
@@ -206,33 +214,8 @@ test('validates email must be unique when creating', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', 'existing@example.com')
-        ->set('password', 'password123')
         ->call('save')
         ->assertHasErrors(['email' => 'unique']);
-});
-
-test('validates password is required when creating', function () {
-    Livewire::test(ManageUsers::class)
-        ->call('create')
-        ->set('username', 'jsmith')
-        ->set('surname', 'Smith')
-        ->set('forenames', 'John')
-        ->set('email', 'test@example.com')
-        ->set('password', '')
-        ->call('save')
-        ->assertHasErrors(['password' => 'required']);
-});
-
-test('validates password minimum length when creating', function () {
-    Livewire::test(ManageUsers::class)
-        ->call('create')
-        ->set('username', 'jsmith')
-        ->set('surname', 'Smith')
-        ->set('forenames', 'John')
-        ->set('email', 'test@example.com')
-        ->set('password', 'short')
-        ->call('save')
-        ->assertHasErrors(['password' => 'min']);
 });
 
 test('can open edit modal with user data', function () {
@@ -273,40 +256,6 @@ test('can update an existing user', function () {
     expect($user->surname)->toBe('NewSurname');
     expect($user->forenames)->toBe('Updated');
     expect($user->email)->toBe('updated@example.com');
-});
-
-test('password is optional when updating', function () {
-    $user = User::factory()->create(['username' => 'testuser']);
-    $originalPassword = $user->password;
-
-    Livewire::test(ManageUsers::class)
-        ->call('edit', $user->id)
-        ->set('username', 'testuser')
-        ->set('surname', 'Smith')
-        ->set('forenames', 'John')
-        ->set('email', 'test@example.com')
-        ->set('password', '')
-        ->call('save');
-
-    $user->refresh();
-    expect($user->password)->toBe($originalPassword);
-});
-
-test('password is updated when provided during edit', function () {
-    $user = User::factory()->create(['username' => 'testuser']);
-    $originalPassword = $user->password;
-
-    Livewire::test(ManageUsers::class)
-        ->call('edit', $user->id)
-        ->set('username', 'testuser')
-        ->set('surname', 'Smith')
-        ->set('forenames', 'John')
-        ->set('email', 'test@example.com')
-        ->set('password', 'newpassword123')
-        ->call('save');
-
-    $user->refresh();
-    expect($user->password)->not->toBe($originalPassword);
 });
 
 test('can delete a user', function () {
@@ -365,7 +314,6 @@ test('non-admin cannot create user', function () {
         ->set('surname', 'Smith')
         ->set('forenames', 'John')
         ->set('email', 'newuser@example.com')
-        ->set('password', 'password123')
         ->call('save');
 
     expect(User::where('username', 'newuser')->exists())->toBeFalse();

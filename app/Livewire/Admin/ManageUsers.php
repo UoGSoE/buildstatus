@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -23,8 +24,6 @@ class ManageUsers extends Component
     public string $forenames = '';
 
     public string $email = '';
-
-    public string $password = '';
 
     public bool $isAdmin = false;
 
@@ -58,7 +57,7 @@ class ManageUsers extends Component
             return;
         }
 
-        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'password', 'isAdmin']);
+        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'isAdmin']);
         Flux::modal('user-form')->show();
     }
 
@@ -76,7 +75,6 @@ class ManageUsers extends Component
         $this->surname = $user->surname;
         $this->forenames = $user->forenames;
         $this->email = $user->email;
-        $this->password = '';
         $this->isAdmin = $user->is_admin;
         Flux::modal('user-form')->show();
     }
@@ -89,21 +87,13 @@ class ManageUsers extends Component
             return;
         }
 
-        $rules = [
+        $validated = $this->validate([
             'username' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
             'forenames' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email'.($this->userId ? ','.$this->userId : ''),
             'isAdmin' => 'boolean',
-        ];
-
-        if ($this->userId) {
-            $rules['password'] = 'nullable|string|min:8';
-        } else {
-            $rules['password'] = 'required|string|min:8';
-        }
-
-        $validated = $this->validate($rules);
+        ]);
 
         $data = [
             'username' => $validated['username'],
@@ -117,19 +107,17 @@ class ManageUsers extends Component
             $data['is_admin'] = $validated['isAdmin'];
         }
 
-        if (! empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
-        }
-
         if ($this->userId) {
             User::findOrFail($this->userId)->update($data);
             Flux::toast('User updated successfully');
         } else {
+            // Auto-generate a strong random password for new users
+            $data['password'] = Hash::make(Str::random(32));
             User::create($data);
             Flux::toast('User created successfully');
         }
 
-        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'password', 'isAdmin']);
+        $this->reset(['userId', 'username', 'surname', 'forenames', 'email', 'isAdmin']);
         Flux::modal('user-form')->close();
     }
 
